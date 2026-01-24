@@ -1,0 +1,139 @@
+# WifiConfig Library
+
+A robust, modern WiFi configuration manager for ESP32. It features a modern mobile-friendly UI, background scanning for instant page loads, and continuous reconnection logic.
+
+## 🚀 Key Features
+
+*   **Instant Portal**: The configuration page loads immediately (no waiting for scans).
+*   **Background Scanning**: Networks are scanned asynchronously and populate the list via AJAX/JSON.
+*   **Modern UI**: Beautiful, clean interface with modern aesthetics.
+*   **Continuous Reconnection**: Automatically retries saved networks if connection is lost.
+*   **Offline Support**: Can initialize without blocking the main loop or forcing an AP.
+
+## 📦 Installation
+
+Add the repository URL to your `platformio.ini` dependencies:
+
+```ini
+[env:esp32]
+platform = espressif32
+board = esp32doit-devkit-v1
+framework = arduino
+lib_deps =
+    https://github.com/nainaiurk/WifiConfig.git
+```
+
+## ⚡ Quick Start
+
+Here is a complete example of how to use the library in your `main.cpp`. 
+
+This setup will:
+1.  Try to connect silently on boot (without blocking).
+2.  If connection fails, it keeps trying in the background (no AP).
+3.  If you press the button, it forces the Portal (AP Mode) to open.
+
+```cpp
+#include <Arduino.h>
+#include <WifiConfig.h>
+
+WifiConfig wifiConfig;
+#define BUTTON_PIN 12  // Button to force Config Portal
+
+void setup() {
+    Serial.begin(115200);
+    pinMode(BUTTON_PIN, INPUT_PULLDOWN);
+
+    // Optional: Configure settings before begin
+    wifiConfig.setAutoFallbackToAP(false); // Don't start AP automatically on boot failure
+    wifiConfig.setConnectTimeout(5000);    // Wait 5s per network attempt
+
+    // Initialize the library
+    // Arguments: "AP Name", "AP Password" (NULL for open), AutoConnect (true/false)
+    wifiConfig.begin("Smart Device", NULL, false); 
+}
+
+void loop() {
+    // 1. Essential: Handle network tasks
+    wifiConfig.run();
+
+    // 2. Manual Override: Start Portal on button press
+    if (digitalRead(BUTTON_PIN) == HIGH) {
+        Serial.println("Starting Portal...");
+        wifiConfig.startPortal(); 
+        // Portal is now active at 192.168.4.1 (or connected IP)
+        // Access Point Name: "Smart Device"
+    }
+    
+    // 3. Check Status
+    if (wifiConfig.isConnected()) {
+        // You are connected!
+        // Serial.println(WiFi.localIP());
+    }
+}
+```
+
+## 📖 API Reference
+
+### Initialization
+
+#### `void begin(const char *apSSID, const char *apPass, bool autoConnect)`
+Initializes the library.
+*   `apSSID`: The name of the Access Point (when portal is active).
+*   `apPass`: The password for the AP (pass `NULL` for open network).
+*   `autoConnect`: 
+    *   `true` (Default): Tries to connect to saved networks immediately. If it fails (and `CurrentFallback` is true), it starts the AP.
+    *   `false`: Initializes memory but does **nothing** else. Useful if you want to control when to connect manually or use your own retry loop.
+
+### Configuration
+
+#### `void setAutoFallbackToAP(bool enable)`
+*   `true` (Default): If `tryConnectSaved()` fails, the Access Point automatically starts.
+*   `false`: If connection fails, it stays disconnected (silent mode). Good for devices that function offline.
+
+#### `void setConnectTimeout(unsigned long ms)`
+Sets how long to wait for a WiFi connection per attempt. Default is 10000ms (10s).
+
+#### `void setMaxSavedNetworks(int max)`
+Sets the maximum number of networks to remember. Default is 3.
+
+### Operation
+
+#### `void run()`
+**CRITICAL**: You must call this in your `loop()`. It handles:
+*   Web Server requests (serving the portal).
+*   DNS requests (captive portal redirection).
+*   Timeouts and state transitions.
+
+#### `void startPortal()`
+Manually forces the Configuration Portal (AP Mode) to start.
+*   Disconnects current WiFi.
+*   Starts the AP with the name configured in `begin()`.
+*   Users can connect to `192.168.4.1` to configure.
+
+#### `bool tryConnectSaved()`
+Cycles through all saved networks and attempts to connect.
+*   Returns `true` if connected successfully.
+*   Returns `false` if all attempts failed.
+
+### Status
+
+#### `bool isConnected()`
+Returns `true` if valid WiFi connection exists.
+
+#### `bool isPortalActive()`
+Returns `true` if the Access Point / Web Server is currently running.
+
+#### `String getConnectedSSID()`
+Returns the SSID of the currently connected network.
+
+#### `int getSavedNetworkCount()`
+Returns the number of credentials currently stored in flash memory.
+
+#### `String getSavedSSID(int index)`
+Returns the SSID at a specific index (0 to max-1).
+
+## 🧠 How It Works
+
+1.  **Storage**: Credentials are saved permanently in NVS (Non-Volatile Storage).
+2.  **Portal**: The HTML is compressed directly in the code.
+3.  **Fast Loading**: When a user opens the page, it serves the HTML instantly. The ESP32 then scans for networks in the background and sends the results via JSON ("AJAX"), so the user never sees a loading spinner blocking the page.
