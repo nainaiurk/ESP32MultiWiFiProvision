@@ -46,6 +46,7 @@ public:
   int getSavedNetworkCount();
   String getSavedSSID(int index);
   String getSavedPassword(int index);
+  void deleteCredential(int index);
 
   // Status Callback
   typedef void (*StatusCallback)(const char *msg);

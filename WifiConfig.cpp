@@ -50,6 +50,8 @@ bool WifiConfig::_tryConnectSaved() {
 // Public wrapper for backward compatibility or manual trigger
 bool WifiConfig::tryConnectSaved() { return _tryConnectSaved(); }
 
+void WifiConfig::deleteCredential(int index) { _deleteCredential(index); }
+
 void WifiConfig::startPortal() {
   if (!_portalActive) {
     WiFi.disconnect();
