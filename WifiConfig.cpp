@@ -16,6 +16,12 @@ void WifiConfig::setConnectTimeout(unsigned long ms) { _connectTimeout = ms; }
 
 void WifiConfig::setStatusCallback(StatusCallback cb) { _statusCallback = cb; }
 
+void WifiConfig::setAutoReconnect(bool enable) { _autoReconnect = enable; }
+
+void WifiConfig::setReconnectInterval(unsigned long ms) {
+  _reconnectInterval = ms;
+}
+
 void WifiConfig::setAutoFallbackToAP(bool enable) { _autoFallbackAP = enable; }
 
 void WifiConfig::setConnectPriority(ConnectPriority priority) {
@@ -162,6 +168,19 @@ void WifiConfig::run() {
 
   // 2. Handle Connection State Machine
   // 2. Handle Connection State Machine
+  if (_connectState == STATE_IDLE) {
+    // Check if we need to auto-reconnect
+    if (_autoReconnect && !isConnected() && _lastConnectedSSID.length() > 0 &&
+        ((!_portalActive) || (_portalActive && !_autoFallbackAP)) &&
+        (millis() - _lastReconnectAttempt > _reconnectInterval)) {
+      _lastReconnectAttempt = millis();
+      if (_statusCallback)
+        _statusCallback("Auto-reconnecting...");
+      _tryConnectSaved();
+    }
+  }
+
+  // Handle Scan State (for Strongest Priority)
   if (_connectState == STATE_SCANNING) {
     int n = WiFi.scanComplete();
     if (n >= 0) {

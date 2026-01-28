@@ -66,6 +66,10 @@ public:
   void setAutoFallbackToAP(bool enable);
   bool tryConnectSaved();
 
+  // Continuous Reconnection
+  void setAutoReconnect(bool enable);
+  void setReconnectInterval(unsigned long ms);
+
 private:
   Preferences _prefs;
   WebServer _server;
@@ -76,6 +80,11 @@ private:
   String _apPass;
   bool _portalActive;
   bool _autoFallbackAP = true;
+
+  // Reconnection Logic
+  bool _autoReconnect = true;
+  unsigned long _reconnectInterval = 10000;
+  unsigned long _lastReconnectAttempt = 0;
 
   int _maxNetworks;
   unsigned long _connectTimeout;
