@@ -8,6 +8,7 @@ A robust, modern WiFi configuration manager for ESP32. It features a modern mobi
 *   **Background Scanning**: Networks are scanned asynchronously and populate the list via AJAX/JSON.
 *   **Modern UI**: Beautiful, clean interface with modern aesthetics.
 *   **Continuous Reconnection**: Automatically retries saved networks if connection is lost.
+*   **Connection Priorities**: Choose between LIFO (Last Saved), Last Connected, or Strongest Signal.
 *   **Offline Support**: Can initialize without blocking the main loop or forcing an AP.
 
 ## 📦 Installation
@@ -46,6 +47,10 @@ void setup() {
     // Optional: Configure settings before begin
     wifiConfig.setAutoFallbackToAP(false); // Don't start AP automatically on boot failure
     wifiConfig.setConnectTimeout(5000);    // Wait 5s per network attempt
+    
+    // Optional: Set Connection Priority (v1.1.0+)
+    // wifiConfig.prioritizeLastConnected(); // Try the last successfully connected network first
+    wifiConfig.prioritizeStrongestSignal(); // Scan and connect to the strongest signal found
 
     // Initialize the library
     // Arguments: "AP Name", "AP Password" (NULL for open), AutoConnect (true/false)
@@ -95,6 +100,20 @@ Sets how long to wait for a WiFi connection per attempt. Default is 10000ms (10s
 
 #### `void setMaxSavedNetworks(int max)`
 Sets the maximum number of networks to remember. Default is 3.
+
+### Connection Priorities (v1.1.0+)
+
+#### `void prioritizeLastSaved()`
+**Default Behavior**. The library tries to connect to networks in the reverse order they were added (LIFO). 
+
+#### `void prioritizeLastConnected()`
+Tries to connect to the **last successfully connected** network first.
+*   **Why use this?** If you have a Mobile Hotspot and Home WiFi saved, and you were last using the Hotspot, it will reconnect to the Hotspot instantly instead of trying Home WiFi first.
+
+#### `void prioritizeStrongestSignal()`
+Performs a background scan to find all available networks, then connects to the saved network with the **strongest RSSI (Signal Strength)**.
+*   **Why use this?** Best for moving devices or environments with multiple saved networks available simultaneously.
+*   Note: Adds ~2-3 seconds to startup time due to scanning.
 
 ### Operation
 

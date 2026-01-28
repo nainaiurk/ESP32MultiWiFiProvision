@@ -27,6 +27,17 @@ public:
   setConnectTimeout(unsigned long ms); // Time to wait per network connection
                                        // attempt. Default: 10000ms
 
+  // Priority Configuration
+  enum ConnectPriority {
+    CONNECT_PRIORITY_LAST_SAVED,
+    CONNECT_PRIORITY_LAST_CONNECTED,
+    CONNECT_PRIORITY_STRONGEST
+  };
+  void setConnectPriority(ConnectPriority priority);
+  void prioritizeLastSaved();       // Simplified API
+  void prioritizeLastConnected();   // Simplified API
+  void prioritizeStrongestSignal(); // Simplified API
+
   // Manually force the portal to start
   void startPortal();
 
@@ -72,7 +83,14 @@ private:
   unsigned long _switchTime;
 
   // Connection State Machine
-  enum ConnectState { STATE_IDLE, STATE_TRYING_SAVED, STATE_PORTAL };
+  enum ConnectState {
+    STATE_IDLE,
+    STATE_SCANNING,
+    STATE_TRYING_SAVED,
+    STATE_TRYING_LAST_CONNECTED,
+    STATE_TRYING_STRONGEST,
+    STATE_PORTAL
+  };
 
   void _saveCredential(String ssid, String pass);
   void _deleteCredential(int index);
@@ -88,6 +106,11 @@ private:
   ConnectState _connectState = STATE_IDLE;
   int _connectIndex = 0;
   unsigned long _connectStartTime = 0;
+  int _bestNetworkIndex = -1; // For Strongest Priority
+
+  // Priority Mode
+  ConnectPriority _priority = CONNECT_PRIORITY_LAST_SAVED;
+  String _lastConnectedSSID = "";
 };
 
 #endif

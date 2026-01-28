@@ -3,7 +3,8 @@
 
 WifiConfig::WifiConfig()
     : _server(80), _portalActive(false), _maxNetworks(3),
-      _connectTimeout(10000), _switchPending(false) {}
+      _connectTimeout(10000), _switchPending(false),
+      _priority(CONNECT_PRIORITY_LAST_SAVED) {}
 
 void WifiConfig::setMaxSavedNetworks(int maxNetworks) {
   if (maxNetworks > 0) {
@@ -17,6 +18,22 @@ void WifiConfig::setStatusCallback(StatusCallback cb) { _statusCallback = cb; }
 
 void WifiConfig::setAutoFallbackToAP(bool enable) { _autoFallbackAP = enable; }
 
+void WifiConfig::setConnectPriority(ConnectPriority priority) {
+  _priority = priority;
+}
+
+void WifiConfig::prioritizeLastSaved() {
+  setConnectPriority(CONNECT_PRIORITY_LAST_SAVED);
+}
+
+void WifiConfig::prioritizeLastConnected() {
+  setConnectPriority(CONNECT_PRIORITY_LAST_CONNECTED);
+}
+
+void WifiConfig::prioritizeStrongestSignal() {
+  setConnectPriority(CONNECT_PRIORITY_STRONGEST);
+}
+
 void WifiConfig::begin(const char *apSSID, const char *apPass,
                        bool autoConnect) {
   _apSSID = String(apSSID);
@@ -24,6 +41,7 @@ void WifiConfig::begin(const char *apSSID, const char *apPass,
     _apPass = String(apPass);
 
   _prefs.begin("wificfg", false);
+  _lastConnectedSSID = _prefs.getString("last_conn_ssid", "");
 
   if (autoConnect) {
     // Try to connect to saved networks
@@ -39,6 +57,32 @@ bool WifiConfig::_tryConnectSaved() {
   // Start the state machine
   int count = getSavedNetworkCount();
   if (count > 0) {
+    // Check priority mode
+    if (_priority == CONNECT_PRIORITY_LAST_CONNECTED &&
+        _lastConnectedSSID.length() > 0) {
+      // Verify if last connected is still in saved list
+      bool found = false;
+      for (int i = 0; i < count; i++) {
+        if (getSavedSSID(i).equals(_lastConnectedSSID)) {
+          found = true;
+          break;
+        }
+      }
+      if (found) {
+        _connectState = STATE_TRYING_LAST_CONNECTED;
+        _connectStartTime = 0;
+        return true;
+      }
+    } else if (_priority == CONNECT_PRIORITY_STRONGEST) {
+      if (_statusCallback)
+        _statusCallback("Scanning for strongest signal...");
+      WiFi.scanNetworks(true); // Async scan
+      _connectState = STATE_SCANNING;
+      _connectStartTime = millis(); // timeout safety
+      return true;
+    }
+
+    // Default or Fallback
     _connectState = STATE_TRYING_SAVED;
     _connectIndex = 0;
     _connectStartTime = 0; // Will trigger immediate attempt in run()
@@ -117,9 +161,143 @@ void WifiConfig::run() {
   }
 
   // 2. Handle Connection State Machine
-  if (_connectState == STATE_TRYING_SAVED) {
+  // 2. Handle Connection State Machine
+  if (_connectState == STATE_SCANNING) {
+    int n = WiFi.scanComplete();
+    if (n >= 0) {
+      // Scan done
+      // Find best match
+      int bestIndex = -1;
+      int bestRSSI = -1000;
+
+      for (int i = 0; i < n; i++) {
+        String scanSSID = WiFi.SSID(i);
+        // Check if this scanned SSID is in our saved list
+        int count = getSavedNetworkCount();
+        for (int j = 0; j < count; j++) {
+          if (getSavedSSID(j).equals(scanSSID)) {
+            // Match found! Check RSSI
+            if (WiFi.RSSI(i) > bestRSSI) {
+              bestRSSI = WiFi.RSSI(i);
+              bestIndex = j;
+            }
+            break; // Stop checking saved list for this scan result
+          }
+        }
+      }
+
+      WiFi.scanDelete(); // Clean up
+
+      if (bestIndex >= 0) {
+        _connectState = STATE_TRYING_STRONGEST;
+        _bestNetworkIndex = bestIndex;
+        _connectStartTime = 0;
+        if (_statusCallback) {
+          String msg = "Strongest: " + getSavedSSID(bestIndex) + " (" +
+                       String(bestRSSI) + "dBm)";
+          _statusCallback(msg.c_str());
+        }
+      } else {
+        // No match found, fallback to normal saved order
+        _connectState = STATE_TRYING_SAVED;
+        _connectIndex = 0;
+        _connectStartTime = 0;
+      }
+
+    } else if (n == -1) {
+      // Still scanning, check timeout
+      if (millis() - _connectStartTime > 10000) {
+        // Scan stuck? Fallback
+        _connectState = STATE_TRYING_SAVED;
+        _connectIndex = 0;
+        _connectStartTime = 0;
+      }
+    }
+  } else if (_connectState == STATE_TRYING_STRONGEST) {
     if (WiFi.status() == WL_CONNECTED) {
       _connectState = STATE_IDLE;
+      // Save valid connection (optional, acts as Last Connected too)
+      String currentSSID = WiFi.SSID();
+      if (!currentSSID.equals(_lastConnectedSSID)) {
+        _lastConnectedSSID = currentSSID;
+        _prefs.begin("wificfg", false);
+        _prefs.putString("last_conn_ssid", _lastConnectedSSID.c_str());
+      }
+      if (_statusCallback)
+        _statusCallback("Connected!");
+      return;
+    }
+
+    unsigned long now = millis();
+    if (now - _connectStartTime > _connectTimeout) {
+      if (_connectStartTime == 0) { // First run for this state
+        String ssid = getSavedSSID(_bestNetworkIndex);
+        String pass = getSavedPassword(_bestNetworkIndex);
+        if (_statusCallback) {
+          String msg = "Connecting to (Strongest): " + ssid + "...";
+          _statusCallback(msg.c_str());
+        }
+        WiFi.mode(WIFI_STA);
+        WiFi.begin(ssid.c_str(), pass.c_str());
+        _connectStartTime = now;
+      } else {
+        // Timeout
+        _connectState = STATE_TRYING_SAVED;
+        _connectIndex = 0;
+        _connectStartTime = 0;
+      }
+    }
+  } else if (_connectState == STATE_TRYING_LAST_CONNECTED) {
+    if (WiFi.status() == WL_CONNECTED) {
+      _connectState = STATE_IDLE;
+      // Save valid connection
+      String currentSSID = WiFi.SSID();
+      if (!currentSSID.equals(_lastConnectedSSID)) {
+        _lastConnectedSSID = currentSSID;
+        _prefs.begin("wificfg", false);
+        _prefs.putString("last_conn_ssid", _lastConnectedSSID.c_str());
+      }
+      if (_statusCallback)
+        _statusCallback("Connected!");
+      return;
+    }
+
+    unsigned long now = millis();
+    if (now - _connectStartTime > _connectTimeout) {
+      if (_connectStartTime == 0) { // First run for this state
+        // Find password for _lastConnectedSSID
+        String pass = "";
+        int count = getSavedNetworkCount();
+        for (int i = 0; i < count; i++) {
+          if (getSavedSSID(i).equals(_lastConnectedSSID)) {
+            pass = getSavedPassword(i);
+            break;
+          }
+        }
+        if (_statusCallback) {
+          String msg = "Connecting to (Last): " + _lastConnectedSSID + "...";
+          _statusCallback(msg.c_str());
+        }
+        WiFi.mode(WIFI_STA);
+        WiFi.begin(_lastConnectedSSID.c_str(), pass.c_str());
+        _connectStartTime = now;
+      } else {
+        // Timeout -> Fallback to normal saved list
+        _connectState = STATE_TRYING_SAVED;
+        _connectIndex = 0;
+        _connectStartTime = 0;
+      }
+    }
+  } else if (_connectState == STATE_TRYING_SAVED) {
+    if (WiFi.status() == WL_CONNECTED) {
+      _connectState = STATE_IDLE;
+      // Save valid connection
+      String currentSSID = WiFi.SSID();
+      if (!currentSSID.equals(_lastConnectedSSID)) {
+        _lastConnectedSSID = currentSSID;
+        _prefs.begin("wificfg", false);
+        _prefs.putString("last_conn_ssid", _lastConnectedSSID.c_str());
+      }
       if (_statusCallback)
         _statusCallback("Connected!");
       return;
@@ -132,6 +310,17 @@ void WifiConfig::run() {
       if (_connectIndex < getSavedNetworkCount()) {
         // Try next network
         String ssid = getSavedSSID(_connectIndex);
+
+        // SKIP if already tried in LAST_CONNECTED or STRONGEST state
+        if ((_priority == CONNECT_PRIORITY_LAST_CONNECTED &&
+             ssid.equals(_lastConnectedSSID)) ||
+            (_priority == CONNECT_PRIORITY_STRONGEST &&
+             _bestNetworkIndex == _connectIndex)) {
+          _connectIndex++;
+          _connectStartTime = 0; // Immediately check next
+          return;
+        }
+
         String pass = getSavedPassword(_connectIndex);
 
         if (ssid.length() > 0) {
@@ -144,17 +333,16 @@ void WifiConfig::run() {
           _connectStartTime = now;
         }
         _connectIndex++;
-      } else {
-        // All Failed
-        _connectState = STATE_IDLE;
-        if (_autoFallbackAP) {
-          _startAP();
-          _connectState = STATE_PORTAL;
-        }
+      }
+    } else {
+      // All Failed
+      _connectState = STATE_IDLE;
+      if (_autoFallbackAP) {
+        _startAP();
+        _connectState = STATE_PORTAL;
       }
     }
   }
-
   // Handle deferred switch
   if (_switchPending && millis() - _switchTime > 2000) {
     _switchPending = false;
