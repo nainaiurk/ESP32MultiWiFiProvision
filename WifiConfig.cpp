@@ -48,6 +48,7 @@ void WifiConfig::begin(const char *apSSID, const char *apPass,
 
   _prefs.begin("wificfg", false);
   _lastConnectedSSID = _prefs.getString("last_conn_ssid", "");
+  _prefs.end();
 
   if (autoConnect) {
     // Try to connect to saved networks
@@ -241,6 +242,7 @@ void WifiConfig::run() {
         _lastConnectedSSID = currentSSID;
         _prefs.begin("wificfg", false);
         _prefs.putString("last_conn_ssid", _lastConnectedSSID.c_str());
+        _prefs.end();
       }
       if (_statusCallback)
         _statusCallback("Connected!");
@@ -275,6 +277,7 @@ void WifiConfig::run() {
         _lastConnectedSSID = currentSSID;
         _prefs.begin("wificfg", false);
         _prefs.putString("last_conn_ssid", _lastConnectedSSID.c_str());
+        _prefs.end();
       }
       if (_statusCallback)
         _statusCallback("Connected!");
@@ -316,6 +319,7 @@ void WifiConfig::run() {
         _lastConnectedSSID = currentSSID;
         _prefs.begin("wificfg", false);
         _prefs.putString("last_conn_ssid", _lastConnectedSSID.c_str());
+        _prefs.end();
       }
       if (_statusCallback)
         _statusCallback("Connected!");
