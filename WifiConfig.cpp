@@ -480,7 +480,15 @@ void WifiConfig::_saveCredential(String newSSID, String newPass) {
     }
   }
 
+  // Read existing last connected SSID before clearing
+  String savedLastConn = _prefs.getString("last_conn_ssid", "");
+
   _prefs.clear();
+
+  // Restore last connected SSID (if valid)
+  if (savedLastConn.length() > 0) {
+    _prefs.putString("last_conn_ssid", savedLastConn.c_str());
+  }
 
   // Write new
   _prefs.putString("ssid0", newSSID);
