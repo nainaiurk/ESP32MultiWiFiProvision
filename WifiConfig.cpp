@@ -395,23 +395,30 @@ int WifiConfig::getSavedNetworkCount() {
       count++;
     }
   }
+  _prefs.end();
   return count;
 }
 
 String WifiConfig::getSavedSSID(int index) {
+  _prefs.begin("wificfg", false);
+  String ssid = "";
   if (index >= 0 && index < _maxNetworks) {
     String key = "ssid" + String(index);
-    return _prefs.getString(key.c_str(), "");
+    ssid = _prefs.getString(key.c_str(), "");
   }
-  return "";
+  _prefs.end();
+  return ssid;
 }
 
 String WifiConfig::getSavedPassword(int index) {
+  _prefs.begin("wificfg", true); // Read-only is fine/better
+  String pass = "";
   if (index >= 0 && index < _maxNetworks) {
     String key = "pass" + String(index);
-    return _prefs.getString(key.c_str(), "");
+    pass = _prefs.getString(key.c_str(), "");
   }
-  return "";
+  _prefs.end();
+  return pass;
 }
 
 void WifiConfig::_deleteCredential(int index) {
@@ -458,6 +465,8 @@ void WifiConfig::_deleteCredential(int index) {
 }
 
 void WifiConfig::_saveCredential(String newSSID, String newPass) {
+  _prefs.begin("wificfg", false); // Open preferences for read/write
+  
   struct Cred {
     String s;
     String p;
@@ -465,7 +474,7 @@ void WifiConfig::_saveCredential(String newSSID, String newPass) {
   Cred *creds = new Cred[_maxNetworks];
   int count = 0;
 
-  // Read existing
+  // Read existing credentials (excluding duplicate of new SSID)
   for (int i = 0; i < _maxNetworks; i++) {
     String kS = "ssid" + String(i);
     String kP = "pass" + String(i);
@@ -480,6 +489,12 @@ void WifiConfig::_saveCredential(String newSSID, String newPass) {
     }
   }
 
+  // If we've reached max capacity, remove the oldest (last) credential
+  if (count >= _maxNetworks) {
+    Serial.println("[Save] Max networks reached. Replacing oldest credential.");
+    count = _maxNetworks - 1; // Keep only the most recent (maxNetworks - 1) credentials
+  }
+
   // Read existing last connected SSID before clearing
   String savedLastConn = _prefs.getString("last_conn_ssid", "");
 
@@ -490,13 +505,15 @@ void WifiConfig::_saveCredential(String newSSID, String newPass) {
     _prefs.putString("last_conn_ssid", savedLastConn.c_str());
   }
 
-  // Write new
+  // Write new credential at index 0 (most recent)
   _prefs.putString("ssid0", newSSID);
   _prefs.putString("pass0", newPass);
+  Serial.print("[Save] Saved new credential at index 0: ");
+  Serial.println(newSSID);
 
-  // Write old
+  // Write old credentials starting from index 1
   int savedCount = 1;
-  for (int i = 0; i < count && savedCount < _maxNetworks; i++) {
+  for (int i = 0; i < count; i++) {
     String kS = "ssid" + String(savedCount);
     String kP = "pass" + String(savedCount);
     _prefs.putString(kS.c_str(), creds[i].s);
@@ -504,6 +521,10 @@ void WifiConfig::_saveCredential(String newSSID, String newPass) {
     savedCount++;
   }
 
+  Serial.print("[Save] Total networks saved: ");
+  Serial.println(savedCount);
+
+  _prefs.end(); // Close preferences
   delete[] creds;
 }
 

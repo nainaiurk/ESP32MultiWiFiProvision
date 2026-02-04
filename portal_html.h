@@ -76,7 +76,7 @@ const char PORTAL_HTML[] PROGMEM =
     "</div>"
     "<div class='input-group'>"
     "<label>Password</label>"
-    "<input type='password' name='pass' placeholder='Enter password...'>"
+    "<input type='text' name='pass' placeholder='Enter password...'>"
     "</div>"
     "<button type='submit'>Connect</button>"
     "</form>"
