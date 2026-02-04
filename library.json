@@ -1,6 +1,6 @@
 {
     "name": "WifiConfig",
-    "version": "1.1.0",
+    "version": "1.2.1",
     "description": "A robust WiFi configuration portal with modern UI, background scanning, and captive portal support.",
     "keywords": "wifi, config, portal, esp32",
     "repository": {

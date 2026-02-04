@@ -324,6 +324,7 @@ void WifiConfig::run() {
 
     unsigned long now = millis();
     // Check if we need to start a new connection attempt
+    // Check if we need to start a new connection attempt
     if (now - _connectStartTime > _connectTimeout) {
       // Timeout or first run
       if (_connectIndex < getSavedNetworkCount()) {
@@ -352,13 +353,13 @@ void WifiConfig::run() {
           _connectStartTime = now;
         }
         _connectIndex++;
-      }
-    } else {
-      // All Failed
-      _connectState = STATE_IDLE;
-      if (_autoFallbackAP) {
-        _startAP();
-        _connectState = STATE_PORTAL;
+      } else {
+        // All Failed (Index reached limit)
+        _connectState = STATE_IDLE;
+        if (_autoFallbackAP) {
+          _startAP();
+          _connectState = STATE_PORTAL;
+        }
       }
     }
   }
