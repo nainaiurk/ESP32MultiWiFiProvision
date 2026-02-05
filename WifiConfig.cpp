@@ -165,14 +165,13 @@ void WifiConfig::run() {
   if (_portalActive) {
     _dnsServer.processNextRequest();
     _server.handleClient();
+    return;  // Exit early - don't process connection states when portal is active
   }
 
-  // 2. Handle Connection State Machine
   // 2. Handle Connection State Machine
   if (_connectState == STATE_IDLE) {
     // Check if we need to auto-reconnect
     if (_autoReconnect && !isConnected() && _lastConnectedSSID.length() > 0 &&
-        ((!_portalActive) || (_portalActive && !_autoFallbackAP)) &&
         (millis() - _lastReconnectAttempt > _reconnectInterval)) {
       _lastReconnectAttempt = millis();
       if (_statusCallback)
@@ -388,11 +387,15 @@ String WifiConfig::getConnectedSSID() {
 
 int WifiConfig::getSavedNetworkCount() {
   int count = 0;
-  _prefs.begin("wificfg", false); // Ensure opened
+  _prefs.begin("wificfg", true); // Read-only mode
+  // Count contiguous networks from index 0
   for (int i = 0; i < _maxNetworks; i++) {
     String key = "ssid" + String(i);
     if (_prefs.isKey(key.c_str())) {
       count++;
+    } else {
+      // Stop at first gap (networks should be contiguous)
+      break;
     }
   }
   _prefs.end();
