@@ -7,6 +7,16 @@
 #include <WebServer.h>
 #include <WiFi.h>
 
+// Connection status codes
+enum ConnectionStatus {
+  STATUS_DISCONNECTED,
+  STATUS_CONNECTING,
+  STATUS_CONNECTED,
+  STATUS_TIMEOUT,
+  STATUS_WRONG_PASSWORD,
+  STATUS_NO_SAVED_NETWORKS
+};
+
 class WifiConfig {
 public:
   WifiConfig();
@@ -47,11 +57,24 @@ public:
   // Check if we are currently connected to the configured WiFi
   bool isConnected();
 
+  // Blocking connection method - simpler API
+  // Returns true if connected within timeout
+  bool connect(unsigned long timeout = 40000);
+
   // Check if portal is currently active
   bool isPortalActive();
 
   // Get the name of the currently connected SSID
   String getConnectedSSID();
+
+  // Get the last connected SSID (useful for debugging)
+  String getLastConnectedSSID();
+
+  // Get connection status with detailed information
+  ConnectionStatus getStatus();
+
+  // Get human-readable status message
+  String getStatusMessage();
 
   // Credential Accessors
   int getSavedNetworkCount();
@@ -63,6 +86,10 @@ public:
   typedef void (*StatusCallback)(const char *msg);
   void setStatusCallback(StatusCallback cb);
 
+  // Connected Callback - fires when successfully connected
+  typedef void (*OnConnectedCallback)(String ssid);
+  void onConnected(OnConnectedCallback cb);
+
   void setAutoFallbackToAP(bool enable);
   bool tryConnectSaved();
 
@@ -70,11 +97,16 @@ public:
   void setAutoReconnect(bool enable);
   void setReconnectInterval(unsigned long ms);
 
+  // Retry Configuration
+  void setMaxRetries(int maxRetries);      // How many networks to try (default: maxNetworks)
+  void setRetryDelay(unsigned long ms);    // Delay between retry attempts (default: 100ms)
+
 private:
   Preferences _prefs;
   WebServer _server;
   DNSServer _dnsServer;
   StatusCallback _statusCallback = NULL;
+  OnConnectedCallback _onConnectedCallback = NULL;
 
   String _apSSID;
   String _apPass;
@@ -86,10 +118,17 @@ private:
   unsigned long _reconnectInterval = 10000;
   unsigned long _lastReconnectAttempt = 0;
 
+  // Retry Configuration
+  int _maxRetries;
+  unsigned long _retryDelay = 100;
+
   int _maxNetworks;
   unsigned long _connectTimeout;
   bool _switchPending;
   unsigned long _switchTime;
+
+  // Track if already notified about connection
+  bool _connectedNotified = false;
 
   // Connection State Machine
   enum ConnectState {
@@ -120,6 +159,10 @@ private:
   // Priority Mode
   ConnectPriority _priority = CONNECT_PRIORITY_LAST_SAVED;
   String _lastConnectedSSID = "";
+
+  // Status tracking
+  ConnectionStatus _currentStatus = STATUS_DISCONNECTED;
+  unsigned long _lastStatusCheck = 0;
 };
 
 #endif

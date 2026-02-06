@@ -4,6 +4,7 @@
 WifiConfig::WifiConfig()
     : _server(80), _portalActive(false), _maxNetworks(3),
       _connectTimeout(10000), _switchPending(false),
+      _maxRetries(3),
       _priority(CONNECT_PRIORITY_LAST_SAVED) {}
 
 void WifiConfig::setMaxSavedNetworks(int maxNetworks) {
@@ -16,11 +17,17 @@ void WifiConfig::setConnectTimeout(unsigned long ms) { _connectTimeout = ms; }
 
 void WifiConfig::setStatusCallback(StatusCallback cb) { _statusCallback = cb; }
 
+void WifiConfig::onConnected(OnConnectedCallback cb) { _onConnectedCallback = cb; }
+
 void WifiConfig::setAutoReconnect(bool enable) { _autoReconnect = enable; }
 
 void WifiConfig::setReconnectInterval(unsigned long ms) {
   _reconnectInterval = ms;
 }
+
+void WifiConfig::setMaxRetries(int maxRetries) { _maxRetries = maxRetries; }
+
+void WifiConfig::setRetryDelay(unsigned long ms) { _retryDelay = ms; }
 
 void WifiConfig::setAutoFallbackToAP(bool enable) { _autoFallbackAP = enable; }
 
@@ -106,6 +113,7 @@ void WifiConfig::deleteCredential(int index) { _deleteCredential(index); }
 void WifiConfig::startPortal() {
   if (!_portalActive) {
     WiFi.disconnect();
+    _connectedNotified = false;  // Reset callback flag
     _startAP();
   }
 }
@@ -174,6 +182,7 @@ void WifiConfig::run() {
     if (_autoReconnect && !isConnected() && _lastConnectedSSID.length() > 0 &&
         (millis() - _lastReconnectAttempt > _reconnectInterval)) {
       _lastReconnectAttempt = millis();
+      _connectedNotified = false;  // Reset callback flag for reconnection
       if (_statusCallback)
         _statusCallback("Auto-reconnecting...");
       _tryConnectSaved();
@@ -330,7 +339,7 @@ void WifiConfig::run() {
     // Check if we need to start a new connection attempt
     if (now - _connectStartTime > _connectTimeout) {
       // Timeout or first run
-      if (_connectIndex < getSavedNetworkCount()) {
+      if (_connectIndex < getSavedNetworkCount() && _connectIndex < _maxRetries) {
         // Try next network
         String ssid = getSavedSSID(_connectIndex);
 
@@ -340,7 +349,7 @@ void WifiConfig::run() {
             (_priority == CONNECT_PRIORITY_STRONGEST &&
              _bestNetworkIndex == _connectIndex)) {
           _connectIndex++;
-          _connectStartTime = 0; // Immediately check next
+          _connectStartTime = now;  // Apply retry delay before next attempt
           return;
         }
 
@@ -374,7 +383,32 @@ void WifiConfig::run() {
   }
 }
 
-bool WifiConfig::isConnected() { return WiFi.status() == WL_CONNECTED; }
+bool WifiConfig::isConnected() {
+  bool connected = (WiFi.status() == WL_CONNECTED);
+  
+  // Auto-save last connected SSID when connection is first detected
+  if (connected && _connectState != STATE_IDLE) {
+    String currentSSID = WiFi.SSID();
+    if (!currentSSID.equals(_lastConnectedSSID)) {
+      _lastConnectedSSID = currentSSID;
+      _prefs.begin("wificfg", false);
+      _prefs.putString("last_conn_ssid", _lastConnectedSSID.c_str());
+      _prefs.end();
+    }
+    _connectState = STATE_IDLE;
+    _connectedNotified = false;  // Reset for next disconnection
+  }
+  
+  // Trigger onConnected callback (once per connection)
+  if (connected && !_connectedNotified && _onConnectedCallback) {
+    _connectedNotified = true;
+    _onConnectedCallback(WiFi.SSID());
+  }
+  
+  return connected;
+}
+  return connected;
+}
 
 bool WifiConfig::isPortalActive() { return _portalActive; }
 
@@ -624,4 +658,59 @@ void WifiConfig::_handleConnect() {
 
 void WifiConfig::_sendError(String msg) {
   _server.send(400, "text/plain", "Error: " + msg);
+}
+
+// Blocking connection method - simplified API
+bool WifiConfig::connect(unsigned long timeout) {
+  if (isConnected()) return true;
+
+  tryConnectSaved();
+
+  unsigned long start = millis();
+  while (!isConnected() && millis() - start < timeout) {
+    run();
+    delay(100);
+  }
+
+  return isConnected();
+}
+
+// Get last connected SSID
+String WifiConfig::getLastConnectedSSID() {
+  return _lastConnectedSSID;
+}
+
+// Get detailed connection status
+ConnectionStatus WifiConfig::getStatus() {
+  if (isConnected()) {
+    _currentStatus = STATUS_CONNECTED;
+  } else if (_connectState == STATE_IDLE && getSavedNetworkCount() == 0) {
+    _currentStatus = STATUS_NO_SAVED_NETWORKS;
+  } else if (_connectState == STATE_IDLE) {
+    _currentStatus = STATUS_DISCONNECTED;
+  } else {
+    _currentStatus = STATUS_CONNECTING;
+  }
+
+  return _currentStatus;
+}
+
+// Get human-readable status message
+String WifiConfig::getStatusMessage() {
+  switch (getStatus()) {
+    case STATUS_CONNECTED:
+      return "Connected to " + getConnectedSSID();
+    case STATUS_CONNECTING:
+      return "Connecting...";
+    case STATUS_DISCONNECTED:
+      return "Disconnected";
+    case STATUS_TIMEOUT:
+      return "Connection timeout";
+    case STATUS_WRONG_PASSWORD:
+      return "Wrong password";
+    case STATUS_NO_SAVED_NETWORKS:
+      return "No saved networks";
+    default:
+      return "Unknown status";
+  }
 }
