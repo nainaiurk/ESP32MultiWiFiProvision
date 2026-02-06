@@ -225,6 +225,21 @@ wifiConfig.setRetryDelay(200);  // 200ms delay between retries
 *   Default: 100ms.
 *   Good for unstable networks or low-power scenarios.
 
+#### `void setPortalAutoConnect(bool enable)` (v1.2.8+)
+Control whether the portal attempts automatic connection after saving credentials.
+
+```cpp
+wifiConfig.setPortalAutoConnect(false);  // Disable auto-connect after portal save
+```
+
+*   Default: `true` (current behavior - tries to connect after credentials saved).
+*   Set to `false` for **on-demand WiFi patterns** where you want to:
+    *   Save credentials via portal without attempting immediate connection
+    *   Avoid wasting 10-60 seconds waiting for connection
+    *   Reduce power consumption from unnecessary WiFi operations
+    *   Manually trigger connection later when needed (via `connect()` or `tryConnectSaved()`)
+*   **Example Use Case**: Device that only needs WiFi for periodic sync (e.g., attendance data). Portal saves credentials but doesn't connect until your code calls `connect()`.
+
 #### `String getLastConnectedSSID()` (v1.2.6+)
 Returns the SSID of the last successful connection (for debugging).
 
@@ -291,7 +306,11 @@ Returns the SSID at a specific index (0 to max-1).
 
 ## 📋 Version History
 
-### v1.2.7 (Latest)
+### v1.2.8 (Latest)
+- ✨ Add `setPortalAutoConnect()` for on-demand WiFi patterns
+- 💡 Improved portal feedback when auto-connect disabled
+
+### v1.2.7
 - ✨ Add `onConnected()` callback for event-driven connection detection
 - ✨ Add `setMaxRetries()` and `setRetryDelay()` configuration
 - 🐛 Auto-save last connected SSID in `isConnected()` for reliability

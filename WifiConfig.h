@@ -91,6 +91,7 @@ public:
   void onConnected(OnConnectedCallback cb);
 
   void setAutoFallbackToAP(bool enable);
+  void setPortalAutoConnect(bool enable);  // Auto-connect after saving (default: true)
   bool tryConnectSaved();
 
   // Continuous Reconnection
@@ -112,6 +113,7 @@ private:
   String _apPass;
   bool _portalActive;
   bool _autoFallbackAP = true;
+  bool _portalAutoConnect = true;  // Auto-connect after saving to portal
 
   // Reconnection Logic
   bool _autoReconnect = true;

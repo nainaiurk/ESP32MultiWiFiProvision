@@ -31,6 +31,8 @@ void WifiConfig::setRetryDelay(unsigned long ms) { _retryDelay = ms; }
 
 void WifiConfig::setAutoFallbackToAP(bool enable) { _autoFallbackAP = enable; }
 
+void WifiConfig::setPortalAutoConnect(bool enable) { _portalAutoConnect = enable; }
+
 void WifiConfig::setConnectPriority(ConnectPriority priority) {
   _priority = priority;
 }
@@ -638,16 +640,27 @@ void WifiConfig::_handleConnect() {
     html += "</head><body><div class='container' style='text-align:center'>";
     html += "<div style='font-size:64px;margin-bottom:20px'>✓</div>";
     html += "<h1>Saved!</h1>";
-    html += "<p>Connecting to <strong>" + newSSID + "</strong>...</p>";
-    html += "<p style='color:#666;font-size:13px;margin-top:20px'>Please check "
-            "your device status.</p>";
+    
+    if (_portalAutoConnect) {
+      html += "<p>Connecting to <strong>" + newSSID + "</strong>...</p>";
+      html += "<p style='color:#666;font-size:13px;margin-top:20px'>Please check "
+              "your device status.</p>";
+    } else {
+      html += "<p>Credentials saved. You can close this window.</p>";
+      html += "<p style='color:#666;font-size:13px;margin-top:20px'>Connect manually when ready.</p>";
+    }
+    
     html += "</div></body></html>";
 
     _server.send(200, "text/html", html);
 
-    // Schedule switch
-    _switchPending = true;
-    _switchTime = millis();
+    // Schedule switch only if auto-connect is enabled
+    if (_portalAutoConnect) {
+      _switchPending = true;
+      _switchTime = millis();
+    } else {
+      _stopAP();  // Close portal immediately
+    }
 
   } else {
     _sendError("Missing credentials");
