@@ -407,7 +407,6 @@ bool WifiConfig::isConnected() {
   
   return connected;
 }
-  return connected;
 }
 
 bool WifiConfig::isPortalActive() { return _portalActive; }
