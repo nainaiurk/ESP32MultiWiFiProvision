@@ -46,6 +46,7 @@ public:
   void setConnectPriority(ConnectPriority priority);
   void prioritizeLastSaved();       // Simplified API
   void prioritizeLastConnected();   // Simplified API
+  void prioritizeStrongestSignal(); // Simplified API
   void setLastConnectedSSID(String ssid);
 
   // Manually force the portal to start
