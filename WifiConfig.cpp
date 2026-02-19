@@ -49,6 +49,15 @@ void WifiConfig::prioritizeStrongestSignal() {
   setConnectPriority(CONNECT_PRIORITY_STRONGEST);
 }
 
+void WifiConfig::setLastConnectedSSID(String ssid) {
+  if (ssid.length() > 0 && !ssid.equals(_lastConnectedSSID)) {
+    _lastConnectedSSID = ssid;
+    _prefs.begin("wificfg", false);
+    _prefs.putString("last_conn_ssid", _lastConnectedSSID.c_str());
+    _prefs.end();
+  }
+}
+
 void WifiConfig::begin(const char *apSSID, const char *apPass,
                        bool autoConnect) {
   _apSSID = String(apSSID);

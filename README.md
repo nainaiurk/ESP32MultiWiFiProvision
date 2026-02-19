@@ -1,6 +1,9 @@
-# WifiConfig Library
+# WifiConfig Library v1.3.0
+A robust WiFi configuration portal for ESP32 with modern UI, non-blocking connection logic, and advanced persistence features.
 
-A robust, modern WiFi configuration manager for ESP32. It features a modern mobile-friendly UI, background scanning for instant page loads, and continuous reconnection logic.
+## New in v1.3.0
+*   **Manual Override**: Added `setLastConnectedSSID()` to manually update the "Last Connected" network state when connecting via `WiFi.begin()`.
+*   **Persistence Fixes**: Resolved critical bugs with credential saving and preferences management.
 
 ## 🚀 Key Features
 
@@ -148,8 +151,17 @@ Sets the maximum number of networks to remember. Default is 3.
 Tries to connect to the **last successfully connected** network first.
 *   **Why use this?** If you have a Mobile Hotspot and Home WiFi saved, and you were last using the Hotspot, it will reconnect to the Hotspot instantly instead of trying Home WiFi first.
 
-#### `void prioritizeStrongestSignal()`
-Performs a background scan to find all available networks, then connects to the saved network with the **strongest RSSI (Signal Strength)**.
+
+#### `void prioritizeStrongestSignal()` (v1.1.0)
+Scans for the strongest available network from the saved list. Ideal for moving environments. Note: scanning takes ~2 seconds.
+
+#### `void setLastConnectedSSID(String ssid)` (v1.3.0)
+Manually updates the "Last Connected" network state. Use this if you connect via `WiFi.begin()` in your own code loop but want the library to remember it for next time.
+```cpp
+if (WiFi.status() == WL_CONNECTED) {
+  wifiConfig.setLastConnectedSSID(WiFi.SSID());
+}
+``` network with the **strongest RSSI (Signal Strength)**.
 *   **Why use this?** Best for moving devices or environments with multiple saved networks available simultaneously.
 *   Note: Adds ~2-3 seconds to startup time due to scanning.
 
