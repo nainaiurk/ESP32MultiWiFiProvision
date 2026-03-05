@@ -1,5 +1,5 @@
-#ifndef WIFICONFIG_H
-#define WIFICONFIG_H
+#ifndef ESP32MULTIWIFIPROVISION_H
+#define ESP32MULTIWIFIPROVISION_H
 
 #include <Arduino.h>
 #include <DNSServer.h>
@@ -17,9 +17,9 @@ enum ConnectionStatus {
   STATUS_NO_SAVED_NETWORKS
 };
 
-class WifiConfig {
+class ESP32MultiWiFiProvision {
 public:
-  WifiConfig();
+  ESP32MultiWiFiProvision();
 
   // Initialize the WiFi Config manager
   // apSSID: Name of the Access Point to create if no connection

@@ -1,55 +1,55 @@
-#include "WifiConfig.h"
+#include "ESP32MultiWiFiProvision.h"
 #include "portal_html.h"
 
-WifiConfig::WifiConfig()
+ESP32MultiWiFiProvision::ESP32MultiWiFiProvision()
     : _server(80), _portalActive(false), _maxNetworks(3),
       _connectTimeout(10000), _switchPending(false),
       _maxRetries(3),
       _priority(CONNECT_PRIORITY_LAST_SAVED) {}
 
-void WifiConfig::setMaxSavedNetworks(int maxNetworks) {
+void ESP32MultiWiFiProvision::setMaxSavedNetworks(int maxNetworks) {
   if (maxNetworks > 0) {
     _maxNetworks = maxNetworks;
   }
 }
 
-void WifiConfig::setConnectTimeout(unsigned long ms) { _connectTimeout = ms; }
+void ESP32MultiWiFiProvision::setConnectTimeout(unsigned long ms) { _connectTimeout = ms; }
 
-void WifiConfig::setStatusCallback(StatusCallback cb) { _statusCallback = cb; }
+void ESP32MultiWiFiProvision::setStatusCallback(StatusCallback cb) { _statusCallback = cb; }
 
-void WifiConfig::onConnected(OnConnectedCallback cb) { _onConnectedCallback = cb; }
+void ESP32MultiWiFiProvision::onConnected(OnConnectedCallback cb) { _onConnectedCallback = cb; }
 
-void WifiConfig::setAutoReconnect(bool enable) { _autoReconnect = enable; }
+void ESP32MultiWiFiProvision::setAutoReconnect(bool enable) { _autoReconnect = enable; }
 
-void WifiConfig::setReconnectInterval(unsigned long ms) {
+void ESP32MultiWiFiProvision::setReconnectInterval(unsigned long ms) {
   _reconnectInterval = ms;
 }
 
-void WifiConfig::setMaxRetries(int maxRetries) { _maxRetries = maxRetries; }
+void ESP32MultiWiFiProvision::setMaxRetries(int maxRetries) { _maxRetries = maxRetries; }
 
-void WifiConfig::setRetryDelay(unsigned long ms) { _retryDelay = ms; }
+void ESP32MultiWiFiProvision::setRetryDelay(unsigned long ms) { _retryDelay = ms; }
 
-void WifiConfig::setAutoFallbackToAP(bool enable) { _autoFallbackAP = enable; }
+void ESP32MultiWiFiProvision::setAutoFallbackToAP(bool enable) { _autoFallbackAP = enable; }
 
-void WifiConfig::setPortalAutoConnect(bool enable) { _portalAutoConnect = enable; }
+void ESP32MultiWiFiProvision::setPortalAutoConnect(bool enable) { _portalAutoConnect = enable; }
 
-void WifiConfig::setConnectPriority(ConnectPriority priority) {
+void ESP32MultiWiFiProvision::setConnectPriority(ConnectPriority priority) {
   _priority = priority;
 }
 
-void WifiConfig::prioritizeLastSaved() {
+void ESP32MultiWiFiProvision::prioritizeLastSaved() {
   setConnectPriority(CONNECT_PRIORITY_LAST_SAVED);
 }
 
-void WifiConfig::prioritizeLastConnected() {
+void ESP32MultiWiFiProvision::prioritizeLastConnected() {
   setConnectPriority(CONNECT_PRIORITY_LAST_CONNECTED);
 }
 
-void WifiConfig::prioritizeStrongestSignal() {
+void ESP32MultiWiFiProvision::prioritizeStrongestSignal() {
   setConnectPriority(CONNECT_PRIORITY_STRONGEST);
 }
 
-void WifiConfig::setLastConnectedSSID(String ssid) {
+void ESP32MultiWiFiProvision::setLastConnectedSSID(String ssid) {
   if (ssid.length() > 0 && !ssid.equals(_lastConnectedSSID)) {
     _lastConnectedSSID = ssid;
     _prefs.begin("wificfg", false);
@@ -58,7 +58,7 @@ void WifiConfig::setLastConnectedSSID(String ssid) {
   }
 }
 
-void WifiConfig::begin(const char *apSSID, const char *apPass,
+void ESP32MultiWiFiProvision::begin(const char *apSSID, const char *apPass,
                        bool autoConnect) {
   _apSSID = String(apSSID);
   if (apPass)
@@ -78,7 +78,7 @@ void WifiConfig::begin(const char *apSSID, const char *apPass,
   }
 }
 
-bool WifiConfig::_tryConnectSaved() {
+bool ESP32MultiWiFiProvision::_tryConnectSaved() {
   // Start the state machine
   int count = getSavedNetworkCount();
   if (count > 0) {
@@ -117,11 +117,11 @@ bool WifiConfig::_tryConnectSaved() {
 }
 
 // Public wrapper for backward compatibility or manual trigger
-bool WifiConfig::tryConnectSaved() { return _tryConnectSaved(); }
+bool ESP32MultiWiFiProvision::tryConnectSaved() { return _tryConnectSaved(); }
 
-void WifiConfig::deleteCredential(int index) { _deleteCredential(index); }
+void ESP32MultiWiFiProvision::deleteCredential(int index) { _deleteCredential(index); }
 
-void WifiConfig::startPortal() {
+void ESP32MultiWiFiProvision::startPortal() {
   if (!_portalActive) {
     WiFi.disconnect();
     _connectedNotified = false;  // Reset callback flag
@@ -129,13 +129,13 @@ void WifiConfig::startPortal() {
   }
 }
 
-void WifiConfig::resetSettings() {
+void ESP32MultiWiFiProvision::resetSettings() {
   _prefs.begin("wificfg", false);
   _prefs.clear();
   _prefs.end();
 }
 
-void WifiConfig::_startAP() {
+void ESP32MultiWiFiProvision::_startAP() {
   WiFi.mode(WIFI_AP);
   WiFi.disconnect();
 
@@ -171,7 +171,7 @@ void WifiConfig::_startAP() {
   _portalActive = true;
 }
 
-void WifiConfig::_stopAP() {
+void ESP32MultiWiFiProvision::_stopAP() {
   _server.stop();
   _dnsServer.stop();
   WiFi.softAPdisconnect(true);
@@ -179,7 +179,7 @@ void WifiConfig::_stopAP() {
   _connectState = STATE_IDLE; // Reset state
 }
 
-void WifiConfig::run() {
+void ESP32MultiWiFiProvision::run() {
   // 1. Handle Portal
   if (_portalActive) {
     _dnsServer.processNextRequest();
@@ -269,7 +269,7 @@ void WifiConfig::run() {
     }
 
     unsigned long now = millis();
-    if (now - _connectStartTime > _connectTimeout) {
+    if (_connectStartTime == 0 || now - _connectStartTime >= _connectTimeout) {
       if (_connectStartTime == 0) { // First run for this state
         String ssid = getSavedSSID(_bestNetworkIndex);
         String pass = getSavedPassword(_bestNetworkIndex);
@@ -304,7 +304,7 @@ void WifiConfig::run() {
     }
 
     unsigned long now = millis();
-    if (now - _connectStartTime > _connectTimeout) {
+    if (_connectStartTime == 0 || now - _connectStartTime >= _connectTimeout) {
       if (_connectStartTime == 0) { // First run for this state
         // Find password for _lastConnectedSSID
         String pass = "";
@@ -347,8 +347,7 @@ void WifiConfig::run() {
 
     unsigned long now = millis();
     // Check if we need to start a new connection attempt
-    // Check if we need to start a new connection attempt
-    if (now - _connectStartTime > _connectTimeout) {
+    if (_connectStartTime == 0 || now - _connectStartTime >= _connectTimeout) {
       // Timeout or first run
       if (_connectIndex < getSavedNetworkCount() && _connectIndex < _maxRetries) {
         // Try next network
@@ -360,7 +359,7 @@ void WifiConfig::run() {
             (_priority == CONNECT_PRIORITY_STRONGEST &&
              _bestNetworkIndex == _connectIndex)) {
           _connectIndex++;
-          _connectStartTime = now;  // Apply retry delay before next attempt
+          _connectStartTime = 0;  // Trigger immediate retry for the next network
           return;
         }
 
@@ -394,7 +393,7 @@ void WifiConfig::run() {
   }
 }
 
-bool WifiConfig::isConnected() {
+bool ESP32MultiWiFiProvision::isConnected() {
   bool connected = (WiFi.status() == WL_CONNECTED);
   
   // Auto-save last connected SSID when connection is first detected
@@ -419,16 +418,16 @@ bool WifiConfig::isConnected() {
   return connected;
 }
 
-bool WifiConfig::isPortalActive() { return _portalActive; }
+bool ESP32MultiWiFiProvision::isPortalActive() { return _portalActive; }
 
-String WifiConfig::getConnectedSSID() {
+String ESP32MultiWiFiProvision::getConnectedSSID() {
   if (isConnected()) {
     return WiFi.SSID();
   }
   return "";
 }
 
-int WifiConfig::getSavedNetworkCount() {
+int ESP32MultiWiFiProvision::getSavedNetworkCount() {
   int count = 0;
   _prefs.begin("wificfg", true); // Read-only mode
   // Count contiguous networks from index 0
@@ -445,7 +444,7 @@ int WifiConfig::getSavedNetworkCount() {
   return count;
 }
 
-String WifiConfig::getSavedSSID(int index) {
+String ESP32MultiWiFiProvision::getSavedSSID(int index) {
   _prefs.begin("wificfg", false);
   String ssid = "";
   if (index >= 0 && index < _maxNetworks) {
@@ -456,7 +455,7 @@ String WifiConfig::getSavedSSID(int index) {
   return ssid;
 }
 
-String WifiConfig::getSavedPassword(int index) {
+String ESP32MultiWiFiProvision::getSavedPassword(int index) {
   _prefs.begin("wificfg", true); // Read-only is fine/better
   String pass = "";
   if (index >= 0 && index < _maxNetworks) {
@@ -467,7 +466,7 @@ String WifiConfig::getSavedPassword(int index) {
   return pass;
 }
 
-void WifiConfig::_deleteCredential(int index) {
+void ESP32MultiWiFiProvision::_deleteCredential(int index) {
   _prefs.begin("wificfg", false);
 
   // 1. Calculate actual count of saved networks (contiguous 0..N)
@@ -510,7 +509,7 @@ void WifiConfig::_deleteCredential(int index) {
   _prefs.end();
 }
 
-void WifiConfig::_saveCredential(String newSSID, String newPass) {
+void ESP32MultiWiFiProvision::_saveCredential(String newSSID, String newPass) {
   _prefs.begin("wificfg", false); // Open preferences for read/write
   
   struct Cred {
@@ -574,7 +573,7 @@ void WifiConfig::_saveCredential(String newSSID, String newPass) {
   delete[] creds;
 }
 
-void WifiConfig::_handleRoot() {
+void ESP32MultiWiFiProvision::_handleRoot() {
   _server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
   _server.sendHeader("Pragma", "no-cache");
   _server.sendHeader("Expires", "-1");
@@ -612,7 +611,7 @@ void WifiConfig::_handleRoot() {
   _server.send(200, "text/html", html);
 }
 
-void WifiConfig::_handleScanResults() {
+void ESP32MultiWiFiProvision::_handleScanResults() {
   int n = WiFi.scanNetworks();
 
   // JSON construction
@@ -634,7 +633,7 @@ void WifiConfig::_handleScanResults() {
   _server.send(200, "application/json", json);
 }
 
-void WifiConfig::_handleConnect() {
+void ESP32MultiWiFiProvision::_handleConnect() {
   if (_server.hasArg("ssid") && _server.hasArg("pass")) {
     String newSSID = _server.arg("ssid");
     String newPass = _server.arg("pass");
@@ -676,12 +675,12 @@ void WifiConfig::_handleConnect() {
   }
 }
 
-void WifiConfig::_sendError(String msg) {
+void ESP32MultiWiFiProvision::_sendError(String msg) {
   _server.send(400, "text/plain", "Error: " + msg);
 }
 
 // Blocking connection method - simplified API
-bool WifiConfig::connect(unsigned long timeout) {
+bool ESP32MultiWiFiProvision::connect(unsigned long timeout) {
   if (isConnected()) return true;
 
   tryConnectSaved();
@@ -696,12 +695,12 @@ bool WifiConfig::connect(unsigned long timeout) {
 }
 
 // Get last connected SSID
-String WifiConfig::getLastConnectedSSID() {
+String ESP32MultiWiFiProvision::getLastConnectedSSID() {
   return _lastConnectedSSID;
 }
 
 // Get detailed connection status
-ConnectionStatus WifiConfig::getStatus() {
+ConnectionStatus ESP32MultiWiFiProvision::getStatus() {
   if (isConnected()) {
     _currentStatus = STATUS_CONNECTED;
   } else if (_connectState == STATE_IDLE && getSavedNetworkCount() == 0) {
@@ -716,7 +715,7 @@ ConnectionStatus WifiConfig::getStatus() {
 }
 
 // Get human-readable status message
-String WifiConfig::getStatusMessage() {
+String ESP32MultiWiFiProvision::getStatusMessage() {
   switch (getStatus()) {
     case STATUS_CONNECTED:
       return "Connected to " + getConnectedSSID();

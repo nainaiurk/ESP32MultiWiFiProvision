@@ -1,349 +1,246 @@
-# WifiConfig Library v1.3.0
-A robust WiFi configuration portal for ESP32 with modern UI, non-blocking connection logic, and advanced persistence features.
+# ESP32MultiWiFiProvision
 
-## New in v1.3.0
-*   **Manual Override**: Added `setLastConnectedSSID()` to manually update the "Last Connected" network state when connecting via `WiFi.begin()`.
-*   **Persistence Fixes**: Resolved critical bugs with credential saving and preferences management.
+A robust, non-blocking WiFi configuration library for ESP32. Provides a beautiful captive portal, multi-network credential storage, automatic reconnection, and flexible connection priority modes — all with a simple API.
 
-## 🚀 Key Features
+---
 
-*   **Instant Portal**: The configuration page loads immediately (no waiting for scans).
-*   **Background Scanning**: Networks are scanned asynchronously and populate the list via AJAX/JSON.
-*   **Modern UI**: Beautiful, clean interface with modern aesthetics (plain text password field).
-*   **Continuous Reconnection**: Automatically retries saved networks if connection is lost.
-*   **Connection Priorities**: Choose between LIFO (Last Saved), Last Connected, or Strongest Signal.
-*   **Blocking Connect API**: Simple `connect()` method instead of manual polling.
-*   **Event Callbacks**: Get notified when connection succeeds with `onConnected()`.
-*   **Configurable Retries**: Control max retries and delay between attempts.
-*   **Offline Support**: Can initialize without blocking the main loop or forcing an AP.
+## ✨ Features
+
+| Feature | Description |
+|---|---|
+| 📡 **Captive Portal** | Beautiful web UI served instantly; networks load in background via AJAX |
+| 💾 **Multi-Network Storage** | Saves up to N credentials in NVS (Non-Volatile Storage) |
+| 🔄 **Auto Reconnection** | Automatically retries saved networks if connection drops |
+| 🎯 **Connection Priorities** | Last Saved (LIFO), Last Connected, or Strongest Signal |
+| ⏱️ **Blocking & Non-Blocking** | Choose `connect()` (blocking) or `run()` loop (non-blocking) |
+| 📢 **Event Callbacks** | `onConnected()` fires once when WiFi connects — no polling needed |
+| ⚙️ **Highly Configurable** | Timeouts, retries, retry delays, auto-fallback, and more |
+| 🔌 **Offline-Friendly** | Can initialize without blocking or forcing AP mode |
+
+---
 
 ## 📦 Installation
 
-Add the repository URL to your `platformio.ini` dependencies:
+### PlatformIO
+
+Add to your `platformio.ini`:
 
 ```ini
-[env:esp32]
-platform = espressif32
-board = esp32doit-devkit-v1
-framework = arduino
 lib_deps =
-    https://github.com/nainaiurk/WifiConfig.git
+    https://github.com/nainaiurk/ESP32MultiWiFiProvision.git
 ```
 
-## ⚡ Quick Start
+### Arduino IDE
 
-Here is a complete example of how to use the library in your `main.cpp`. 
+1. Download this repository as a ZIP (Code → Download ZIP).
+2. In Arduino IDE: **Sketch → Include Library → Add .ZIP Library…** → select the ZIP.
+3. Select your ESP32 board under **Tools → Board**.
 
-This setup will:
-1.  Try to connect silently on boot (without blocking).
-2.  If connection fails, it keeps trying in the background (no AP).
-3.  If you press the button, it forces the Portal (AP Mode) to open.
+---
+
+## 🚀 Quick Start
+
+### Non-Blocking (Recommended)
 
 ```cpp
 #include <Arduino.h>
-#include <WifiConfig.h>
+#include <ESP32MultiWiFiProvision.h>
 
-WifiConfig wifiConfig;
-#define BUTTON_PIN 12  // Button to force Config Portal
+ESP32MultiWiFiProvision wifiConfig;
+#define BUTTON_PIN 12
 
 void setup() {
     Serial.begin(115200);
     pinMode(BUTTON_PIN, INPUT_PULLDOWN);
 
-    // Optional: Configure settings before begin
-    wifiConfig.setAutoFallbackToAP(false); // Don't start AP automatically on boot failure
-    wifiConfig.setConnectTimeout(5000);    // Wait 5s per network attempt
-    
-    // Optional: Set Connection Priority (v1.1.0+)
-    // wifiConfig.prioritizeLastConnected(); // Try the last successfully connected network first
-    wifiConfig.prioritizeStrongestSignal(); // Scan and connect to the strongest signal found
+    wifiConfig.setAutoFallbackToAP(false);
+    wifiConfig.setConnectTimeout(5000);
+    wifiConfig.prioritizeStrongestSignal();
 
-    // Initialize the library
-    // Arguments: "AP Name", "AP Password" (NULL for open), AutoConnect (true/false)
-    wifiConfig.begin("Smart Device", NULL, false); 
+    wifiConfig.begin("Smart Device", NULL, false);
 }
 
 void loop() {
-    // 1. Essential: Handle network tasks
-    wifiConfig.run();
+    wifiConfig.run();  // Must be called every loop
 
-    // 2. Manual Override: Start Portal on button press
     if (digitalRead(BUTTON_PIN) == HIGH) {
-        Serial.println("Starting Portal...");
-        wifiConfig.startPortal(); 
-        // Portal is now active at 192.168.4.1 (or connected IP)
-        // Access Point Name: "Smart Device"
+        wifiConfig.startPortal();  // Opens AP at 192.168.4.1
     }
-    
-    // 3. Check Status
+
     if (wifiConfig.isConnected()) {
-        // You are connected!
-        // Serial.println(WiFi.localIP());
+        // Do your connected work here
     }
 }
 ```
 
-### Simplified Example with Blocking Connect (v1.2.6+)
-
-If you want a simpler, synchronous approach:
+### Blocking (Simpler)
 
 ```cpp
 #include <Arduino.h>
-#include <WifiConfig.h>
+#include <ESP32MultiWiFiProvision.h>
 
-WifiConfig wifiConfig;
+ESP32MultiWiFiProvision wifiConfig;
 
 void setup() {
     Serial.begin(115200);
     wifiConfig.begin("Smart Device", NULL, false);
-    
-    // Set callback for when connected
+
     wifiConfig.onConnected([](String ssid) {
         Serial.println("Connected to: " + ssid);
-        Serial.println("IP: " + WiFi.localIP().toString());
     });
-    
-    // Wait for connection (with 40 second timeout)
-    if (wifiConfig.connect()) {
-        Serial.println("WiFi Connected!");
-    } else {
-        Serial.println("Connection failed, starting portal...");
-        wifiConfig.startPortal();
+
+    if (!wifiConfig.connect()) {       // Blocks for up to 40s
+        wifiConfig.startPortal();      // Fallback to portal
     }
 }
 
 void loop() {
-    // Just call run() in the loop
     wifiConfig.run();
 }
 ```
+
+---
 
 ## 📖 API Reference
 
-### Initialization
+### Setup & Lifecycle
 
-#### `void begin(const char *apSSID, const char *apPass, bool autoConnect)`
-Initializes the library.
-*   `apSSID`: The name of the Access Point (when portal is active).
-*   `apPass`: The password for the AP (pass `NULL` for open network).
-*   `autoConnect`: 
-    *   `true` (Default): Tries to connect to saved networks immediately. If it fails (and `CurrentFallback` is true), it starts the AP.
-    *   `false`: Initializes memory but does **nothing** else. Useful if you want to control when to connect manually or use your own retry loop.
+| Method | Description |
+|---|---|
+| `begin(apSSID, apPass, autoConnect)` | Initialize the library. `autoConnect=true` connects immediately; `false` waits for manual trigger. |
+| `run()` | **Call every `loop()` iteration.** Handles portal, DNS, state machine, and reconnection. |
+| `connect(timeout)` | Blocking connect — tries saved networks, returns `true`/`false`. Default timeout: 40s. |
+| `startPortal()` | Manually opens the captive portal (AP mode at 192.168.4.1). |
+| `resetSettings()` | Erases all saved credentials from NVS. |
 
-### Configuration
+---
 
-#### `void setAutoFallbackToAP(bool enable)`
-*   `true` (Default): If `tryConnectSaved()` fails, the Access Point automatically starts.
-*   `false`: If connection fails, it stays disconnected (silent mode). Good for devices that function offline.
+### Configuration (Call Before `begin()`)
 
-#### `void setConnectTimeout(unsigned long ms)`
-Sets how long to wait for a WiFi connection per attempt. Default is 10000ms (10s).
+| Method | Default | Description |
+|---|---|---|
+| `setMaxSavedNetworks(n)` | 3 | Max credentials to store |
+| `setConnectTimeout(ms)` | 10000 | Timeout per connection attempt |
+| `setAutoFallbackToAP(bool)` | `true` | Start AP automatically if all connections fail |
+| `setAutoReconnect(bool)` | `true` | Auto-retry if connection drops |
+| `setReconnectInterval(ms)` | 10000 | Delay between reconnect attempts |
+| `setMaxRetries(n)` | 3 | How many networks to try before giving up |
+| `setRetryDelay(ms)` | 100 | Delay between retry attempts |
+| `setPortalAutoConnect(bool)` | `true` | Auto-connect after saving via portal. Set `false` for on-demand WiFi patterns. |
 
-#### `void setMaxSavedNetworks(int max)`
-Sets the maximum number of networks to remember. Default is 3.
+---
 
-### Connection Priorities (v1.1.0+)
+### Connection Priority Modes
 
-#### `void prioritizeLastSaved()`
-**Default Behavior**. The library tries to connect to networks in the reverse order they were added (LIFO). 
+Choose how the library picks which saved network to try first:
 
-#### `void prioritizeLastConnected()`
-Tries to connect to the **last successfully connected** network first.
-*   **Why use this?** If you have a Mobile Hotspot and Home WiFi saved, and you were last using the Hotspot, it will reconnect to the Hotspot instantly instead of trying Home WiFi first.
+```cpp
+wifiConfig.prioritizeLastSaved();       // Default — LIFO order
+wifiConfig.prioritizeLastConnected();   // Try last successful network first
+wifiConfig.prioritizeStrongestSignal(); // Scan & pick best RSSI (~2-3s added)
+```
 
+**`setLastConnectedSSID(ssid)`** *(v1.3.0)* — Manually update the "Last Connected" state when you connect via `WiFi.begin()` in your own code:
 
-#### `void prioritizeStrongestSignal()` (v1.1.0)
-Scans for the strongest available network from the saved list. Ideal for moving environments. Note: scanning takes ~2 seconds.
-
-#### `void setLastConnectedSSID(String ssid)` (v1.3.0)
-Manually updates the "Last Connected" network state. Use this if you connect via `WiFi.begin()` in your own code loop but want the library to remember it for next time.
 ```cpp
 if (WiFi.status() == WL_CONNECTED) {
-  wifiConfig.setLastConnectedSSID(WiFi.SSID());
-}
-``` network with the **strongest RSSI (Signal Strength)**.
-*   **Why use this?** Best for moving devices or environments with multiple saved networks available simultaneously.
-*   Note: Adds ~2-3 seconds to startup time due to scanning.
-
-### Operation
-
-#### `void run()`
-**CRITICAL**: You must call this in your `loop()`. It handles:
-*   Web Server requests (serving the portal).
-*   DNS requests (captive portal redirection).
-*   Timeouts and state transitions.
-
-#### `void startPortal()`
-Manually forces the Configuration Portal (AP Mode) to start.
-*   Disconnects current WiFi.
-*   Starts the AP with the name configured in `begin()`.
-*   Users can connect to `192.168.4.1` to configure.
-
-#### `bool connect(unsigned long timeout = 40000)` (v1.2.6+)
-**Simpler Alternative to `run()` Loop**
-Blocking method that handles the entire connection process internally.
-
-```cpp
-// OLD WAY (still works):
-wifiConfig.tryConnectSaved();
-while (!wifiConfig.isConnected() && timeout) {
-    wifiConfig.run();
-    delay(100);
-}
-
-// NEW WAY (much simpler):
-if (wifiConfig.connect()) {
-    Serial.println("Connected!");
-} else {
-    Serial.println("Connection failed");
+    wifiConfig.setLastConnectedSSID(WiFi.SSID());
 }
 ```
 
-*   Handles `tryConnectSaved()` + `run()` loop internally.
-*   Returns `true` if connected within timeout, `false` otherwise.
-*   Default timeout: 40 seconds (customizable).
+---
 
-#### `void onConnected(OnConnectedCallback callback)` (v1.2.7+)
-Event callback that fires **once** when connection succeeds.
+### Status & Callbacks
+
+| Method | Returns | Description |
+|---|---|---|
+| `isConnected()` | `bool` | `true` if WiFi is connected |
+| `isPortalActive()` | `bool` | `true` if AP/portal is running |
+| `getConnectedSSID()` | `String` | Current SSID (empty if disconnected) |
+| `getLastConnectedSSID()` | `String` | Last successfully connected SSID |
+| `getStatus()` | `ConnectionStatus` | Enum: `STATUS_CONNECTED`, `STATUS_CONNECTING`, `STATUS_DISCONNECTED`, `STATUS_TIMEOUT`, `STATUS_WRONG_PASSWORD`, `STATUS_NO_SAVED_NETWORKS` |
+| `getStatusMessage()` | `String` | Human-readable status (e.g., `"Connected to HomeWiFi"`) |
+
+**`onConnected(callback)`** — Event-driven notification (fires once per connection):
 
 ```cpp
 wifiConfig.onConnected([](String ssid) {
     Serial.println("Connected to: " + ssid);
-    // Do network stuff here (HTTP requests, etc)
 });
 ```
 
-*   Eliminates the need to poll `isConnected()`.
-*   Fires only once per successful connection.
-*   Resets when disconnected/reconnected.
+---
 
-#### `void setMaxRetries(int maxRetries)` (v1.2.7+)
-Control how many networks to attempt before giving up.
+### Credential Management
 
-```cpp
-wifiConfig.setMaxRetries(5);  // Try up to 5 networks
-```
+| Method | Description |
+|---|---|
+| `getSavedNetworkCount()` | Number of stored credentials |
+| `getSavedSSID(index)` | SSID at index (0 to max-1) |
+| `getSavedPassword(index)` | Password at index |
+| `deleteCredential(index)` | Remove a specific credential |
+| `tryConnectSaved()` | Low-level: cycle through saved networks (prefer `connect()`) |
 
-*   Default: 3 (same as max saved networks).
-*   Useful for devices with many saved credentials.
-
-#### `void setRetryDelay(unsigned long ms)` (v1.2.7+)
-Add delay between retry attempts to prevent aggressive reconnection.
-
-```cpp
-wifiConfig.setRetryDelay(200);  // 200ms delay between retries
-```
-
-*   Default: 100ms.
-*   Good for unstable networks or low-power scenarios.
-
-#### `void setPortalAutoConnect(bool enable)` (v1.2.8+)
-Control whether the portal attempts automatic connection after saving credentials.
-
-```cpp
-wifiConfig.setPortalAutoConnect(false);  // Disable auto-connect after portal save
-```
-
-*   Default: `true` (current behavior - tries to connect after credentials saved).
-*   Set to `false` for **on-demand WiFi patterns** where you want to:
-    *   Save credentials via portal without attempting immediate connection
-    *   Avoid wasting 10-60 seconds waiting for connection
-    *   Reduce power consumption from unnecessary WiFi operations
-    *   Manually trigger connection later when needed (via `connect()` or `tryConnectSaved()`)
-*   **Example Use Case**: Device that only needs WiFi for periodic sync (e.g., attendance data). Portal saves credentials but doesn't connect until your code calls `connect()`.
-
-#### `String getLastConnectedSSID()` (v1.2.6+)
-Returns the SSID of the last successful connection (for debugging).
-
-```cpp
-String lastSSID = wifiConfig.getLastConnectedSSID();
-Serial.println("Will try first: " + lastSSID);
-```
-
-#### `ConnectionStatus getStatus()` (v1.2.6+)
-Get detailed connection status:
-
-```cpp
-WifiConfig::ConnectionStatus status = wifiConfig.getStatus();
-// OPTIONS:
-// - STATUS_DISCONNECTED
-// - STATUS_CONNECTING
-// - STATUS_CONNECTED
-// - STATUS_TIMEOUT
-// - STATUS_WRONG_PASSWORD
-// - STATUS_NO_SAVED_NETWORKS
-```
-
-#### `String getStatusMessage()` (v1.2.6+)
-Get human-readable status message:
-
-```cpp
-Serial.println(wifiConfig.getStatusMessage());
-// Output examples:
-// "Connected to HomeWiFi"
-// "Connecting to OfficeWiFi..."
-// "No saved networks"
-// "Connection timeout"
-```
-
-#### `bool tryConnectSaved()`
-Cycles through all saved networks and attempts to connect (lower level).
-*   Returns `true` if connected successfully.
-*   Returns `false` if all attempts failed.
-*   You still need to call `run()` in your loop.
-*   Note: Use `connect()` instead for simpler API (v1.2.6+).
-
-### Status
-
-#### `bool isConnected()`
-Returns `true` if valid WiFi connection exists.
-
-#### `bool isPortalActive()`
-Returns `true` if the Access Point / Web Server is currently running.
-
-#### `String getConnectedSSID()`
-Returns the SSID of the currently connected network.
-
-#### `int getSavedNetworkCount()`
-Returns the number of credentials currently stored in flash memory.
-
-#### `String getSavedSSID(int index)`
-Returns the SSID at a specific index (0 to max-1).
+---
 
 ## 🧠 How It Works
 
-1.  **Storage**: Credentials are saved permanently in NVS (Non-Volatile Storage).
-2.  **Portal**: The HTML is compressed directly in the code.
-3.  **Fast Loading**: When a user opens the page, it serves the HTML instantly. The ESP32 then scans for networks in the background and sends the results via JSON ("AJAX"), so the user never sees a loading spinner blocking the page.
+1. **Credentials** are stored in ESP32 NVS (persists across reboots).
+2. **Portal** HTML is embedded in flash — the page loads instantly.
+3. **Network scan** runs asynchronously in the background; results populate via JSON/AJAX, so the UI never blocks.
+4. **State machine** in `run()` handles connection attempts, timeouts, fallbacks, and reconnection seamlessly.
 
-## 📋 Version History
+---
 
-### v1.2.8 (Latest)
+## 📋 Changelog
+
+### v1.3.0 (Latest)
+- 🏷️ **Renamed** library to `ESP32MultiWiFiProvision`
+- ✨ Add `setLastConnectedSSID()` for manual "Last Connected" override
+- 🐛 Fix credential saving and preferences management bugs
+- 🐛 Fix connection state timer bugs causing unintended 10s delays
+
+### v1.2.8
 - ✨ Add `setPortalAutoConnect()` for on-demand WiFi patterns
 - 💡 Improved portal feedback when auto-connect disabled
 
 ### v1.2.7
-- ✨ Add `onConnected()` callback for event-driven connection detection
-- ✨ Add `setMaxRetries()` and `setRetryDelay()` configuration
-- 🐛 Auto-save last connected SSID in `isConnected()` for reliability
+- ✨ Add `onConnected()` callback
+- ✨ Add `setMaxRetries()` and `setRetryDelay()`
+- 🐛 Auto-save last connected SSID in `isConnected()`
 
 ### v1.2.6
-- ✨ Add `connect()` blocking method for simpler API
-- ✨ Add `getLastConnectedSSID()` for debugging
-- ✨ Add `getStatus()` and `getStatusMessage()` for detailed connection info
-- ✨ Add `ConnectionStatus` enum for better error handling
+- ✨ Add `connect()` blocking method
+- ✨ Add `getLastConnectedSSID()`, `getStatus()`, `getStatusMessage()`
+- ✨ Add `ConnectionStatus` enum
 
 ### v1.2.5
-- 🐛 Fix portal interference with connection state machine (early return)
-- 🐛 Improve `getSavedNetworkCount()` to handle contiguous entries only
+- 🐛 Fix portal interference with connection state machine
+- 🐛 Fix `getSavedNetworkCount()` contiguous entry handling
 
 ### v1.2.4
-- 🐛 Fix credential saving - missing Preferences open/close
-- ✨ Remove password masking - show plain text in portal
+- 🐛 Fix credential saving (missing Preferences open/close)
+- ✨ Show plain text passwords in portal
 - ✨ Improve oldest credential replacement logic
 
-### v1.1.0+
-- ✨ Add connection priority modes (Last Saved, Last Connected, Strongest Signal)
+### v1.1.0
+- ✨ Connection priority modes (Last Saved, Last Connected, Strongest Signal)
 
 ### v1.0.0
 - 🎉 Initial release
+
+---
+
+## 👤 Author
+
+**Nainaiu Rakhaine**
+
+[![Website](https://img.shields.io/badge/Website-nainaiurk.me-blue?style=flat-square)](https://www.nainaiurk.me)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-nainaiu--rakhaine-0A66C2?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/nainaiu-rakhaine)
+[![GitHub](https://img.shields.io/badge/GitHub-nainaiurk-181717?style=flat-square&logo=github)](https://github.com/nainaiurk)
+
+---
+
+## 📄 License
+
+MIT — see [LICENSE](LICENSE) for details.
