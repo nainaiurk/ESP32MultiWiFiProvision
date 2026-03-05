@@ -19,6 +19,22 @@ A robust, non-blocking WiFi configuration library for ESP32. Provides a beautifu
 
 ---
 
+## 🆚 Why ESP32MultiWiFiProvision? (vs. WiFiManager)
+
+While the classic `WiFiManager` is fantastic, it was originally built for the ESP8266 and ported to the ESP32. This library is designed from the ground up specifically for the ESP32's capabilities — focusing on multi-network environments and truly non-blocking operation.
+
+| Feature | Classic WiFiManager | ESP32MultiWiFiProvision |
+|---|---|---|
+| **Core Architecture** | Blocking by default | ✅ 100% Non-blocking (`run()` loop) |
+| **Multi-Network Storage** | ⚠️ Limited / Tricky to manage | ✅ Native support (Stores N credentials) |
+| **Storage Engine** | Mixed (EEPROM/FS/Core default) | ✅ Native ESP32 `Preferences` (NVS) |
+| **Connection Priority** | ❌ No | ✅ Yes (Strongest, Last Connected, LIFO) |
+| **Automatic Fallback** | ❌ Drops to AP immediately | ✅ Cycles through all saved networks first |
+| **Event System** | ⚠️ Heavy continuous polling | ✅ Clean Callbacks (`onConnected`) |
+| **Target Platform** | ESP8266 + ESP32 | ✅ 100% ESP32 Native |
+
+---
+
 ## 📦 Installation
 
 ### PlatformIO
@@ -32,6 +48,12 @@ lib_deps =
 
 ### Arduino IDE
 
+1. Open Arduino IDE
+2. Go to **Sketch → Include Library → Manage Libraries…**
+3. Search for **ESP32MultiWiFiProvision**
+4. Click **Install**
+
+**Or install manually:**
 1. Download this repository as a ZIP (Code → Download ZIP).
 2. In Arduino IDE: **Sketch → Include Library → Add .ZIP Library…** → select the ZIP.
 3. Select your ESP32 board under **Tools → Board**.
@@ -195,6 +217,12 @@ wifiConfig.onConnected([](String ssid) {
 ## 📋 Changelog
 
 ### v1.3.1 (Latest)
+- 📦 Add Arduino Library Manager install instructions
+- 📁 Add example sketches: BasicProvision, BlockingConnect, MultiNetworkExample, AdvancedCallbacks
+- 📄 Add LICENSE file (MIT)
+- 👤 Add author profile section with website, LinkedIn, and GitHub links
+
+### v1.3.1
 - 📁 Move source files to `src/` for standard Arduino library structure
 - 🐛 Remove invalid `depends=` from `library.properties` (ESP32 core libs)
 
