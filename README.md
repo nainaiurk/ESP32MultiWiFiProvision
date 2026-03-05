@@ -194,7 +194,11 @@ wifiConfig.onConnected([](String ssid) {
 
 ## 📋 Changelog
 
-### v1.3.0 (Latest)
+### v1.3.1 (Latest)
+- 📁 Move source files to `src/` for standard Arduino library structure
+- 🐛 Remove invalid `depends=` from `library.properties` (ESP32 core libs)
+
+### v1.3.0
 - 🏷️ **Renamed** library to `ESP32MultiWiFiProvision`
 - ✨ Add `setLastConnectedSSID()` for manual "Last Connected" override
 - 🐛 Fix credential saving and preferences management bugs
