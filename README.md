@@ -29,31 +29,31 @@ A robust, non-blocking WiFi configuration library for ESP32. Provides a beautifu
 Scans nearby networks, matches saved credentials, picks the strongest, and connects live.
 
 <!-- Upload docs/strongest.mp4 to a GitHub Issue, paste the generated URL below -->
-https://github.com/user-attachments/assets/3bd22726-7974-4346-9d10-75467cbe3a09
+<video src="https://github.com/user-attachments/assets/3bd22726-7974-4346-9d10-75467cbe3a09" width="320" controls></video>
 
 ### 📡 AP Mode — Add New Network
 Opens captive portal, saves credentials via phone, auto-stops AP, and returns to Saved Networks.
 
 <!-- Upload docs/add_new_wifi.mp4 to a GitHub Issue, paste the generated URL below -->
-https://github.com/user-attachments/assets/31607e7a-8ef0-4d3b-82f1-6a2a6cf47ab7
+<video src="https://github.com/user-attachments/assets/31607e7a-8ef0-4d3b-82f1-6a2a6cf47ab7" width="320" controls></video>
 
 ### 📱 Saved Networks — Connect / Delete
 Browse saved SSIDs, select one, choose Connect or Delete with instant visual feedback.
 
 <!-- Upload docs/specific wifi connect.mp4 to a GitHub Issue, paste the generated URL below -->
-https://github.com/user-attachments/assets/1a71c45b-d304-48a4-9af9-afe576fe8103
+<video src="https://github.com/user-attachments/assets/1a71c45b-d304-48a4-9af9-afe576fe8103" width="320" controls></video>
 
 ### 💾 Last Saved — LIFO Connect
 Connects to the most recently saved network first.
 
 <!-- Upload docs/last_saved.mp4 to a GitHub Issue, paste the generated URL below -->
-https://github.com/user-attachments/assets/56f849a7-f156-45aa-9648-b67a1cc52165
+<video src="https://github.com/user-attachments/assets/56f849a7-f156-45aa-9648-b67a1cc52165" width="320" controls></video>
 
 ### 🔄 Last Connected — Quick Reconnect
 Remembers last successful connection and reconnects in one tap.
 
 <!-- Upload docs/last_connected.mp4 to a GitHub Issue, paste the generated URL below -->
-https://github.com/user-attachments/assets/7343c3c6-ac97-489b-b82e-0cb783147488
+<video src="https://github.com/user-attachments/assets/7343c3c6-ac97-489b-b82e-0cb783147488" width="320" controls></video>
 
 </div>
 
@@ -327,4 +327,4 @@ wifiConfig.onConnected([](String ssid) {
 
 ## 📄 License
 
-MIT — see [LICENSE](LICENSE) for details.
+MIT - see [LICENSE](LICENSE) for details.
