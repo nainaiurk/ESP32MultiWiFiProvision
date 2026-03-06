@@ -295,13 +295,16 @@ wifiConfig.onConnected([](String ssid) {
 
 ## 📋 Changelog
 
-### v1.3.1 (Latest)
+### v1.3.2 (Latest)
+- 🎬 Added comprehensive Demo section with embedded MP4 videos to README
+- 🛠️ Added Hardware details mapping out the ESP32-S3 TFT Display and JLCPCB assembly
+- 🐛 Improved captive portal screenshot layout in Quick Start
+
+### v1.3.1
 - 📦 Add Arduino Library Manager install instructions
 - 📁 Add example sketches: BasicProvision, BlockingConnect, MultiNetworkExample, AdvancedCallbacks
 - 📄 Add LICENSE file (MIT)
 - 👤 Add author profile section with website, LinkedIn, and GitHub links
-
-### v1.3.1
 - 📁 Move source files to `src/` for standard Arduino library structure
 - 🐛 Remove invalid `depends=` from `library.properties` (ESP32 core libs)
 
