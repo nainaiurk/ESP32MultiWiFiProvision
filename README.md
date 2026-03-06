@@ -27,28 +27,28 @@ A robust, non-blocking WiFi configuration library for ESP32. Provides a beautifu
 <tr>
 <td width="50%" valign="top">
 
-### 📶 Strongest Signal — Auto Connect
-Scans nearby networks, matches saved credentials, picks the strongest, and connects live.
-
-https://github.com/user-attachments/assets/3bd22726-7974-4346-9d10-75467cbe3a09
-
-</td>
-<td width="50%" valign="top">
-
 ### 📡 AP Mode — Add New Network
 Opens captive portal, saves credentials via phone, auto-stops AP, and returns to Saved Networks.
 
 https://github.com/user-attachments/assets/31607e7a-8ef0-4d3b-82f1-6a2a6cf47ab7
 
 </td>
-</tr>
-<tr>
 <td width="50%" valign="top">
 
 ### 📱 Saved Networks — Connect / Delete
 Browse saved SSIDs, select one, choose Connect or Delete with instant visual feedback.
 
 https://github.com/user-attachments/assets/1a71c45b-d304-48a4-9af9-afe576fe8103
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+### 📶 Strongest Signal — Auto Connect
+Scans nearby networks, matches saved credentials, picks the strongest, and connects live.
+
+https://github.com/user-attachments/assets/3bd22726-7974-4346-9d10-75467cbe3a09
 
 </td>
 <td width="50%" valign="top">
