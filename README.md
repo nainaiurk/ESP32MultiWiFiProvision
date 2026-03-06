@@ -32,10 +32,6 @@ Opens captive portal, saves credentials via phone, auto-stops AP, and returns to
 
 https://github.com/user-attachments/assets/31607e7a-8ef0-4d3b-82f1-6a2a6cf47ab7
 
-<br>
-
-<img width="200" alt="AP Portal Webpage" src="https://github.com/user-attachments/assets/34ff6f93-bf86-44b4-a12e-5ad90608588b" />
-
 </td>
 <td width="50%" valign="top">
 
@@ -138,6 +134,12 @@ lib_deps =
 ---
 
 ## 🚀 Quick Start
+
+<div align="right" style="margin-left: 20px; text-align: center; width: 220px;">
+  <img width="220" alt="Captive Portal Webpage" src="https://github.com/user-attachments/assets/34ff6f93-bf86-44b4-a12e-5ad90608588b" style="border-radius: 8px;" />
+  <br>
+  <sup><em>The Mobile Captive Portal</em></sup>
+</div>
 
 ### Non-Blocking (Recommended)
 
