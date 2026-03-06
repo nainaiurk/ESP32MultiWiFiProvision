@@ -23,41 +23,22 @@ A robust, non-blocking WiFi configuration library for ESP32. Provides a beautifu
 
 > Showcased on an **ESP32-S3 + ST7735 TFT (128×160)** with 4-button navigation
 
-<div align="center">
+| 📶 Strongest Signal — Auto Connect | 📡 AP Mode — Add New Network |
+| :---: | :---: |
+| Scans nearby networks, matches saved credentials, picks the strongest, and connects live. | Opens captive portal, saves credentials via phone, auto-stops AP, and returns to Saved Networks. |
+| https://github.com/user-attachments/assets/3bd22726-7974-4346-9d10-75467cbe3a09 | https://github.com/user-attachments/assets/31607e7a-8ef0-4d3b-82f1-6a2a6cf47ab7 |
 
-### 📶 Strongest Signal — Auto Connect
-Scans nearby networks, matches saved credentials, picks the strongest, and connects live.
+| 📱 Saved Networks — Connect / Delete | 💾 Last Saved — LIFO Connect |
+| :---: | :---: |
+| Browse saved SSIDs, select one, choose Connect or Delete with instant visual feedback. | Connects to the most recently saved network first. |
+| https://github.com/user-attachments/assets/1a71c45b-d304-48a4-9af9-afe576fe8103 | https://github.com/user-attachments/assets/56f849a7-f156-45aa-9648-b67a1cc52165 |
 
-<!-- Upload docs/strongest.mp4 to a GitHub Issue, paste the generated URL below -->
-<video src="https://github.com/user-attachments/assets/3bd22726-7974-4346-9d10-75467cbe3a09" width="320" controls></video>
+| 🔄 Last Connected — Quick Reconnect | |
+| :---: | :---: |
+| Remembers last successful connection and reconnects in one tap. | *(Try out the library to see it in action!)* |
+| https://github.com/user-attachments/assets/7343c3c6-ac97-489b-b82e-0cb783147488 | |
 
-### 📡 AP Mode — Add New Network
-Opens captive portal, saves credentials via phone, auto-stops AP, and returns to Saved Networks.
-
-<!-- Upload docs/add_new_wifi.mp4 to a GitHub Issue, paste the generated URL below -->
-<video src="https://github.com/user-attachments/assets/31607e7a-8ef0-4d3b-82f1-6a2a6cf47ab7" width="320" controls></video>
-
-### 📱 Saved Networks — Connect / Delete
-Browse saved SSIDs, select one, choose Connect or Delete with instant visual feedback.
-
-<!-- Upload docs/specific wifi connect.mp4 to a GitHub Issue, paste the generated URL below -->
-<video src="https://github.com/user-attachments/assets/1a71c45b-d304-48a4-9af9-afe576fe8103" width="320" controls></video>
-
-### 💾 Last Saved — LIFO Connect
-Connects to the most recently saved network first.
-
-<!-- Upload docs/last_saved.mp4 to a GitHub Issue, paste the generated URL below -->
-<video src="https://github.com/user-attachments/assets/56f849a7-f156-45aa-9648-b67a1cc52165" width="320" controls></video>
-
-### 🔄 Last Connected — Quick Reconnect
-Remembers last successful connection and reconnects in one tap.
-
-<!-- Upload docs/last_connected.mp4 to a GitHub Issue, paste the generated URL below -->
-<video src="https://github.com/user-attachments/assets/7343c3c6-ac97-489b-b82e-0cb783147488" width="320" controls></video>
-
-</div>
-
-> **To activate the videos:** Open a [GitHub Issue](../../issues/new) → drag & drop each `.mp4` from `docs/` → GitHub generates a URL → paste it in place of the `REPLACE_WITH_...` line above → save.
+> **To update videos:** Open a [GitHub Issue](../../issues/new) → drag & drop an `.mp4` → GitHub generates a URL → paste it in the table above.
 
 ---
 
