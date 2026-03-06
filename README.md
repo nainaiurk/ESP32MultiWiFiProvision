@@ -19,6 +19,58 @@ A robust, non-blocking WiFi configuration library for ESP32. Provides a beautifu
 
 ---
 
+## 🎬 Demo
+
+> Showcased on an **ESP32-S3 + ST7735 TFT (128×160)** with 4-button navigation
+
+<div align="center">
+
+### 📶 Strongest Signal — Auto Connect
+Scans nearby networks, matches saved credentials, picks the strongest, and connects live.
+
+<!-- Upload docs/strongest.mp4 to a GitHub Issue, paste the generated URL below -->
+https://github.com/user-attachments/assets/3bd22726-7974-4346-9d10-75467cbe3a09
+
+### 📡 AP Mode — Add New Network
+Opens captive portal, saves credentials via phone, auto-stops AP, and returns to Saved Networks.
+
+<!-- Upload docs/add_new_wifi.mp4 to a GitHub Issue, paste the generated URL below -->
+https://github.com/user-attachments/assets/31607e7a-8ef0-4d3b-82f1-6a2a6cf47ab7
+
+### 📱 Saved Networks — Connect / Delete
+Browse saved SSIDs, select one, choose Connect or Delete with instant visual feedback.
+
+<!-- Upload docs/specific wifi connect.mp4 to a GitHub Issue, paste the generated URL below -->
+https://github.com/user-attachments/assets/1a71c45b-d304-48a4-9af9-afe576fe8103
+
+### 💾 Last Saved — LIFO Connect
+Connects to the most recently saved network first.
+
+<!-- Upload docs/last_saved.mp4 to a GitHub Issue, paste the generated URL below -->
+https://github.com/user-attachments/assets/56f849a7-f156-45aa-9648-b67a1cc52165
+
+### 🔄 Last Connected — Quick Reconnect
+Remembers last successful connection and reconnects in one tap.
+
+<!-- Upload docs/last_connected.mp4 to a GitHub Issue, paste the generated URL below -->
+https://github.com/user-attachments/assets/7343c3c6-ac97-489b-b82e-0cb783147488
+
+</div>
+
+> **To activate the videos:** Open a [GitHub Issue](../../issues/new) → drag & drop each `.mp4` from `docs/` → GitHub generates a URL → paste it in place of the `REPLACE_WITH_...` line above → save.
+
+---
+
+## 🛠️ Hardware Used
+
+In the demonstration videos, the system is implemented using an **ESP32-S3** with a **TFT display**. 
+
+The hardware is built on a custom PCB that was designed and manufactured through **[JLCPCB](https://jlcpcb.com)**. The develeopment board was assembled using components from the [JLCPCB parts library](https://jlcpcb.com/parts) to simplify sourcing and assembly.
+
+In addition, the ESP32-S3 data logger board used in the demo is also a custom design produced through [JLCPCB's PCB fabrication and PCBA services](https://jlcpcb.com/pcb-assembly). All major components used on the board are available directly from their parts library.
+
+---
+
 ## 🆚 Why ESP32MultiWiFiProvision? (vs. WiFiManager)
 
 While the classic `WiFiManager` is fantastic, it was originally built for the ESP8266 and ported to the ESP32. This library is designed from the ground up specifically for the ESP32's capabilities — focusing on multi-network environments and truly non-blocking operation.
