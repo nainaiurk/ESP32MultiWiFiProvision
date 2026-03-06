@@ -23,22 +23,62 @@ A robust, non-blocking WiFi configuration library for ESP32. Provides a beautifu
 
 > Showcased on an **ESP32-S3 + ST7735 TFT (128×160)** with 4-button navigation
 
-| 📶 Strongest Signal — Auto Connect | 📡 AP Mode — Add New Network |
-| :---: | :---: |
-| Scans nearby networks, matches saved credentials, picks the strongest, and connects live. | Opens captive portal, saves credentials via phone, auto-stops AP, and returns to Saved Networks. |
-| https://github.com/user-attachments/assets/3bd22726-7974-4346-9d10-75467cbe3a09 | https://github.com/user-attachments/assets/31607e7a-8ef0-4d3b-82f1-6a2a6cf47ab7 |
+<table width="100%">
+<tr>
+<td width="50%" valign="top">
 
-| 📱 Saved Networks — Connect / Delete | 💾 Last Saved — LIFO Connect |
-| :---: | :---: |
-| Browse saved SSIDs, select one, choose Connect or Delete with instant visual feedback. | Connects to the most recently saved network first. |
-| https://github.com/user-attachments/assets/1a71c45b-d304-48a4-9af9-afe576fe8103 | https://github.com/user-attachments/assets/56f849a7-f156-45aa-9648-b67a1cc52165 |
+### 📶 Strongest Signal — Auto Connect
+Scans nearby networks, matches saved credentials, picks the strongest, and connects live.
 
-| 🔄 Last Connected — Quick Reconnect | |
-| :---: | :---: |
-| Remembers last successful connection and reconnects in one tap. | *(Try out the library to see it in action!)* |
-| https://github.com/user-attachments/assets/7343c3c6-ac97-489b-b82e-0cb783147488 | |
+https://github.com/user-attachments/assets/3bd22726-7974-4346-9d10-75467cbe3a09
 
-> **To update videos:** Open a [GitHub Issue](../../issues/new) → drag & drop an `.mp4` → GitHub generates a URL → paste it in the table above.
+</td>
+<td width="50%" valign="top">
+
+### 📡 AP Mode — Add New Network
+Opens captive portal, saves credentials via phone, auto-stops AP, and returns to Saved Networks.
+
+https://github.com/user-attachments/assets/31607e7a-8ef0-4d3b-82f1-6a2a6cf47ab7
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+### 📱 Saved Networks — Connect / Delete
+Browse saved SSIDs, select one, choose Connect or Delete with instant visual feedback.
+
+https://github.com/user-attachments/assets/1a71c45b-d304-48a4-9af9-afe576fe8103
+
+</td>
+<td width="50%" valign="top">
+
+### 💾 Last Saved — LIFO Connect
+Connects to the most recently saved network first.
+
+https://github.com/user-attachments/assets/56f849a7-f156-45aa-9648-b67a1cc52165
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+### 🔄 Last Connected — Quick Reconnect
+Remembers last successful connection and reconnects in one tap.
+
+https://github.com/user-attachments/assets/7343c3c6-ac97-489b-b82e-0cb783147488
+
+</td>
+<td width="50%" valign="top">
+
+<br><br>
+*(Try out the library to see it in action!)*
+
+</td>
+</tr>
+</table>
+
+> **To update videos:** Open a [GitHub Issue](../../issues/new) → drag & drop an `.mp4` → GitHub generates a URL → paste it in the block above.
 
 ---
 
