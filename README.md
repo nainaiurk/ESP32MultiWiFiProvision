@@ -135,10 +135,10 @@ lib_deps =
 
 ## 🚀 Quick Start
 
-<div align="right" style="margin-left: 20px; text-align: center; width: 220px;">
-  <img width="220" alt="Captive Portal Webpage" src="https://github.com/user-attachments/assets/34ff6f93-bf86-44b4-a12e-5ad90608588b" style="border-radius: 8px;" />
-  <br>
-  <sup><em>The Mobile Captive Portal</em></sup>
+<div align="center" style="margin: 30px 0;">
+  <img width="350" alt="Captive Portal Webpage" src="https://github.com/user-attachments/assets/34ff6f93-bf86-44b4-a12e-5ad90608588b" style="border-radius: 8px;" />
+  <br><br>
+  <strong>📱 The Mobile Captive Portal</strong>
 </div>
 
 ### Non-Blocking (Recommended)
