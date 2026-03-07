@@ -87,7 +87,7 @@ In addition, the ESP32-S3 data logger board used in the demo is also a custom de
 
 ## 🆚 Why ESP32MultiWiFiProvision? (vs. WiFiManager)
 
-While the classic `WiFiManager` is fantastic, it was originally built for the ESP8266 and ported to the ESP32. This library is designed from the ground up specifically for the ESP32's capabilities - focusing on multi-network environments and truly non-blocking operation.
+The classic `WiFiManager` was originally developed for the ESP8266 and subsequently ported to the ESP32. `ESP32MultiWiFiProvision` is designed from the ground up specifically for the ESP32 architecture - focusing exclusively on multi-network environments and strictly non-blocking operation.
 
 | Feature | Classic WiFiManager | ESP32MultiWiFiProvision |
 |---|---|---|
@@ -162,7 +162,7 @@ void loop() {
     }
 
     if (wifiConfig.isConnected()) {
-        // Do your connected work here
+        // Execute connected logic here
     }
 }
 ```
@@ -234,7 +234,7 @@ wifiConfig.prioritizeLastConnected();   // Try last successful network first
 wifiConfig.prioritizeStrongestSignal(); // Scan & pick best RSSI (~2-3s added)
 ```
 
-**`setLastConnectedSSID(ssid)`** *(v1.3.0)* - Manually update the "Last Connected" state when you connect via `WiFi.begin()` in your own code:
+**`setLastConnectedSSID(ssid)`** *(v1.3.0)* - Manually update the "Last Connected" state when connecting via `WiFi.begin()` within the application logic:
 
 ```cpp
 if (WiFi.status() == WL_CONNECTED) {
@@ -288,53 +288,52 @@ wifiConfig.onConnected([](String ssid) {
 
 ## 📋 Changelog
 
-### v1.3.2 (Latest)
-- 🎬 Added comprehensive Demo section with embedded MP4 videos to README
-- 🛠️ Added Hardware details mapping out the ESP32-S3 TFT Display and JLCPCB assembly
-- 🐛 Improved captive portal screenshot layout in Quick Start
+### v1.3.3 (Latest)
+- **Documentation:** Enhanced the README with lightweight, inline GIF animations for better cross-platform compatibility (PlatformIO Registry support).
+
+### v1.3.2
+- **Documentation:** Added a comprehensive visual demo section to showcase library capabilities.
+- **Documentation:** Improved formatting and layout of the quick-start guide.
 
 ### v1.3.1
-- 📦 Add Arduino Library Manager install instructions
-- 📁 Add example sketches: BasicProvision, BlockingConnect, MultiNetworkExample, AdvancedCallbacks
-- 📄 Add LICENSE file (MIT)
-- 👤 Add author profile section with website, LinkedIn, and GitHub links
-- 📁 Move source files to `src/` for standard Arduino library structure
-- 🐛 Remove invalid `depends=` from `library.properties` (ESP32 core libs)
+- **Examples:** Added four detailed usage sketches demonstrating basic provisioning, blocking mode routines, multi-network management, and advanced callback handling.
+- **Structure:** Reorganized the repository architecture to adhere to the standard Arduino `src/` directory format.
+- **Fix:** Resolved a dependency mapping issue in `library.properties` for smoother integration with ESP32 core libraries.
 
 ### v1.3.0
-- 🏷️ **Renamed** library to `ESP32MultiWiFiProvision`
-- ✨ Add `setLastConnectedSSID()` for manual "Last Connected" override
-- 🐛 Fix credential saving and preferences management bugs
-- 🐛 Fix connection state timer bugs causing unintended 10s delays
+- **Feature:** Officially renamed library to `ESP32MultiWiFiProvision`.
+- **Feature:** Added manual "Last Connected" override capability via the `setLastConnectedSSID()` method.
+- **Fix:** Improved stability by resolving credential saving and preferences management issues within NVS.
+- **Fix:** Corrected connection state timing logic to eliminate unintended 10-second connectivity delays.
 
 ### v1.2.8
-- ✨ Add `setPortalAutoConnect()` for on-demand WiFi patterns
-- 💡 Improved portal feedback when auto-connect disabled
+- **Feature:** Introduced the `setPortalAutoConnect()` mechanism for strictly on-demand WiFi portal invocation.
+- **Enhancement:** Enhanced captive portal user feedback loops when auto-connect behavior is disabled.
 
 ### v1.2.7
-- ✨ Add `onConnected()` callback
-- ✨ Add `setMaxRetries()` and `setRetryDelay()`
-- 🐛 Auto-save last connected SSID in `isConnected()`
+- **Feature:** Introduced the `onConnected()` event callback for streamlined, non-polling connection handling.
+- **Feature:** Added flexible connection configuration options via `setMaxRetries()` and `setRetryDelay()`.
+- **Enhancement:** Implemented automatic saving of the last connected SSID upon successful background connections.
 
 ### v1.2.6
-- ✨ Add `connect()` blocking method
-- ✨ Add `getLastConnectedSSID()`, `getStatus()`, `getStatusMessage()`
-- ✨ Add `ConnectionStatus` enum
+- **Feature:** Introduced the synchronous `connect()` blocking method for simpler project architectures.
+- **Feature:** Expanded the status API with `getLastConnectedSSID()`, `getStatus()`, and `getStatusMessage()`.
+- **Feature:** Added the `ConnectionStatus` enumeration for rigid state checking and debugging.
 
 ### v1.2.5
-- 🐛 Fix portal interference with connection state machine
-- 🐛 Fix `getSavedNetworkCount()` contiguous entry handling
+- **Fix:** Resolved a conflict between the captive portal interactions and the backend connection state machine.
+- **Fix:** Addressed an issue with `getSavedNetworkCount()` to properly iterate over contiguous network entries.
 
 ### v1.2.4
-- 🐛 Fix credential saving (missing Preferences open/close)
-- ✨ Show plain text passwords in portal
-- ✨ Improve oldest credential replacement logic
+- **Fix:** Addressed an NVS storage bug (missing Preferences open/close parameters) to ensure credentials save correctly under all conditions.
+- **Enhancement:** Updated the captive portal UI to feature an optional plain text password visibility toggle.
+- **Enhancement:** Improved the memory replacement algorithm, guaranteeing the strict overwriting of the oldest credentials.
 
 ### v1.1.0
-- ✨ Connection priority modes (Last Saved, Last Connected, Strongest Signal)
+- **Feature:** Introduced advanced connection priority modes including Last Saved (LIFO), Last Connected, and Strongest Signal parsing.
 
 ### v1.0.0
-- 🎉 Initial release
+- **Release:** Initial public release.
 
 ---
 
