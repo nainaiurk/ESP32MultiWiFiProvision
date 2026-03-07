@@ -30,7 +30,7 @@ A robust, non-blocking WiFi configuration library for ESP32. Provides a beautifu
 ### 📡 AP Mode - Add New Network
 Opens captive portal, saves credentials via phone, auto-stops AP, and returns to Saved Networks.
 
-<img src="docs/add_new_wifi.gif" width="100%" alt="AP Mode Demo" />
+<img src="https://raw.githubusercontent.com/nainaiurk/ESP32MultiWiFiProvision/main/docs/add_new_wifi.gif" width="100%" alt="AP Mode Demo" />
 
 </td>
 <td width="50%" valign="top">
@@ -38,7 +38,7 @@ Opens captive portal, saves credentials via phone, auto-stops AP, and returns to
 ### 📱 Saved Networks - Connect / Delete
 Browse saved SSIDs, select one, choose Connect or Delete with instant visual feedback.
 
-<img src="docs/specific_wifi_connect.gif" width="100%" alt="Saved Networks Demo" />
+<img src="https://raw.githubusercontent.com/nainaiurk/ESP32MultiWiFiProvision/main/docs/specific_wifi_connect.gif" width="100%" alt="Saved Networks Demo" />
 
 </td>
 </tr>
@@ -48,7 +48,7 @@ Browse saved SSIDs, select one, choose Connect or Delete with instant visual fee
 ### 📶 Strongest Signal - Auto Connect
 Scans nearby networks, matches saved credentials, picks the strongest, and connects live.
 
-<img src="docs/strongest.gif" width="100%" alt="Strongest Signal Demo" />
+<img src="https://raw.githubusercontent.com/nainaiurk/ESP32MultiWiFiProvision/main/docs/strongest.gif" width="100%" alt="Strongest Signal Demo" />
 
 </td>
 <td width="50%" valign="top">
@@ -56,7 +56,7 @@ Scans nearby networks, matches saved credentials, picks the strongest, and conne
 ### 💾 Last Saved - LIFO Connect
 Connects to the most recently saved network first.
 
-<img src="docs/last_saved.gif" width="100%" alt="Last Saved Demo" />
+<img src="https://raw.githubusercontent.com/nainaiurk/ESP32MultiWiFiProvision/main/docs/last_saved.gif" width="100%" alt="Last Saved Demo" />
 
 </td>
 </tr>
@@ -67,7 +67,7 @@ Connects to the most recently saved network first.
 Remembers last successful connection and reconnects in one tap.
 
 <br>
-<img src="docs/last_connected.gif" width="50%" alt="Last Connected Demo" />
+<img src="https://raw.githubusercontent.com/nainaiurk/ESP32MultiWiFiProvision/main/docs/last_connected.gif" width="50%" alt="Last Connected Demo" />
 
 </td>
 </tr>
@@ -288,7 +288,10 @@ wifiConfig.onConnected([](String ssid) {
 
 ## 📋 Changelog
 
-### v1.3.3 (Latest)
+### v1.3.4 (Latest)
+- **Fix:** Switched relative image paths to absolute GitHub Raw URLs so demo animations properly render on the PlatformIO registry landing page.
+
+### v1.3.3
 - **Documentation:** Enhanced the README with lightweight, inline GIF animations for better cross-platform compatibility (PlatformIO Registry support).
 
 ### v1.3.2
