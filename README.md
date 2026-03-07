@@ -1,6 +1,6 @@
 # ESP32MultiWiFiProvision
 
-A robust, non-blocking WiFi configuration library for ESP32. Provides a beautiful captive portal, multi-network credential storage, automatic reconnection, and flexible connection priority modes — all with a simple API.
+A robust, non-blocking WiFi configuration library for ESP32. Provides a beautiful captive portal, multi-network credential storage, automatic reconnection, and flexible connection priority modes - all with a simple API.
 
 ---
 
@@ -13,7 +13,7 @@ A robust, non-blocking WiFi configuration library for ESP32. Provides a beautifu
 | 🔄 **Auto Reconnection** | Automatically retries saved networks if connection drops |
 | 🎯 **Connection Priorities** | Last Saved (LIFO), Last Connected, or Strongest Signal |
 | ⏱️ **Blocking & Non-Blocking** | Choose `connect()` (blocking) or `run()` loop (non-blocking) |
-| 📢 **Event Callbacks** | `onConnected()` fires once when WiFi connects — no polling needed |
+| 📢 **Event Callbacks** | `onConnected()` fires once when WiFi connects - no polling needed |
 | ⚙️ **Highly Configurable** | Timeouts, retries, retry delays, auto-fallback, and more |
 | 🔌 **Offline-Friendly** | Can initialize without blocking or forcing AP mode |
 
@@ -27,7 +27,7 @@ A robust, non-blocking WiFi configuration library for ESP32. Provides a beautifu
 <tr>
 <td width="50%" valign="top">
 
-### 📡 AP Mode — Add New Network
+### 📡 AP Mode - Add New Network
 Opens captive portal, saves credentials via phone, auto-stops AP, and returns to Saved Networks.
 
 <img src="docs/add_new_wifi.gif" width="100%" alt="AP Mode Demo" />
@@ -35,7 +35,7 @@ Opens captive portal, saves credentials via phone, auto-stops AP, and returns to
 </td>
 <td width="50%" valign="top">
 
-### 📱 Saved Networks — Connect / Delete
+### 📱 Saved Networks - Connect / Delete
 Browse saved SSIDs, select one, choose Connect or Delete with instant visual feedback.
 
 <img src="docs/specific_wifi_connect.gif" width="100%" alt="Saved Networks Demo" />
@@ -45,7 +45,7 @@ Browse saved SSIDs, select one, choose Connect or Delete with instant visual fee
 <tr>
 <td width="50%" valign="top">
 
-### 📶 Strongest Signal — Auto Connect
+### 📶 Strongest Signal - Auto Connect
 Scans nearby networks, matches saved credentials, picks the strongest, and connects live.
 
 <img src="docs/strongest.gif" width="100%" alt="Strongest Signal Demo" />
@@ -53,7 +53,7 @@ Scans nearby networks, matches saved credentials, picks the strongest, and conne
 </td>
 <td width="50%" valign="top">
 
-### 💾 Last Saved — LIFO Connect
+### 💾 Last Saved - LIFO Connect
 Connects to the most recently saved network first.
 
 <img src="docs/last_saved.gif" width="100%" alt="Last Saved Demo" />
@@ -63,7 +63,7 @@ Connects to the most recently saved network first.
 <tr>
 <td colspan="2" align="center" valign="top">
 
-### 🔄 Last Connected — Quick Reconnect
+### 🔄 Last Connected - Quick Reconnect
 Remembers last successful connection and reconnects in one tap.
 
 <br>
@@ -87,7 +87,7 @@ In addition, the ESP32-S3 data logger board used in the demo is also a custom de
 
 ## 🆚 Why ESP32MultiWiFiProvision? (vs. WiFiManager)
 
-While the classic `WiFiManager` is fantastic, it was originally built for the ESP8266 and ported to the ESP32. This library is designed from the ground up specifically for the ESP32's capabilities — focusing on multi-network environments and truly non-blocking operation.
+While the classic `WiFiManager` is fantastic, it was originally built for the ESP8266 and ported to the ESP32. This library is designed from the ground up specifically for the ESP32's capabilities - focusing on multi-network environments and truly non-blocking operation.
 
 | Feature | Classic WiFiManager | ESP32MultiWiFiProvision |
 |---|---|---|
@@ -203,7 +203,7 @@ void loop() {
 |---|---|
 | `begin(apSSID, apPass, autoConnect)` | Initialize the library. `autoConnect=true` connects immediately; `false` waits for manual trigger. |
 | `run()` | **Call every `loop()` iteration.** Handles portal, DNS, state machine, and reconnection. |
-| `connect(timeout)` | Blocking connect — tries saved networks, returns `true`/`false`. Default timeout: 40s. |
+| `connect(timeout)` | Blocking connect - tries saved networks, returns `true`/`false`. Default timeout: 40s. |
 | `startPortal()` | Manually opens the captive portal (AP mode at 192.168.4.1). |
 | `resetSettings()` | Erases all saved credentials from NVS. |
 
@@ -229,12 +229,12 @@ void loop() {
 Choose how the library picks which saved network to try first:
 
 ```cpp
-wifiConfig.prioritizeLastSaved();       // Default — LIFO order
+wifiConfig.prioritizeLastSaved();       // Default - LIFO order
 wifiConfig.prioritizeLastConnected();   // Try last successful network first
 wifiConfig.prioritizeStrongestSignal(); // Scan & pick best RSSI (~2-3s added)
 ```
 
-**`setLastConnectedSSID(ssid)`** *(v1.3.0)* — Manually update the "Last Connected" state when you connect via `WiFi.begin()` in your own code:
+**`setLastConnectedSSID(ssid)`** *(v1.3.0)* - Manually update the "Last Connected" state when you connect via `WiFi.begin()` in your own code:
 
 ```cpp
 if (WiFi.status() == WL_CONNECTED) {
@@ -255,7 +255,7 @@ if (WiFi.status() == WL_CONNECTED) {
 | `getStatus()` | `ConnectionStatus` | Enum: `STATUS_CONNECTED`, `STATUS_CONNECTING`, `STATUS_DISCONNECTED`, `STATUS_TIMEOUT`, `STATUS_WRONG_PASSWORD`, `STATUS_NO_SAVED_NETWORKS` |
 | `getStatusMessage()` | `String` | Human-readable status (e.g., `"Connected to HomeWiFi"`) |
 
-**`onConnected(callback)`** — Event-driven notification (fires once per connection):
+**`onConnected(callback)`** - Event-driven notification (fires once per connection):
 
 ```cpp
 wifiConfig.onConnected([](String ssid) {
@@ -280,7 +280,7 @@ wifiConfig.onConnected([](String ssid) {
 ## 🧠 How It Works
 
 1. **Credentials** are stored in ESP32 NVS (persists across reboots).
-2. **Portal** HTML is embedded in flash — the page loads instantly.
+2. **Portal** HTML is embedded in flash - the page loads instantly.
 3. **Network scan** runs asynchronously in the background; results populate via JSON/AJAX, so the UI never blocks.
 4. **State machine** in `run()` handles connection attempts, timeouts, fallbacks, and reconnection seamlessly.
 
