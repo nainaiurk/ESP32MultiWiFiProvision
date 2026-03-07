@@ -1,6 +1,6 @@
 {
     "name": "ESP32MultiWiFiProvision",
-    "version": "1.3.2",
+    "version": "1.3.3",
     "description": "ESP32 WiFi provisioning and configuration library supporting multiple stored WiFi networks using NVS. Features include a captive portal, automatic reconnection, connection priority modes (Last Saved, Last Connected, Strongest Signal), blocking and non-blocking APIs, and event callbacks for IoT applications.",
     "keywords": "wifi, config, portal, esp32, provision, multi-wifi",
     "repository": {
