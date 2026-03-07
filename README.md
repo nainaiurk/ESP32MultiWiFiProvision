@@ -30,7 +30,7 @@ A robust, non-blocking WiFi configuration library for ESP32. Provides a beautifu
 ### 📡 AP Mode — Add New Network
 Opens captive portal, saves credentials via phone, auto-stops AP, and returns to Saved Networks.
 
-https://github.com/user-attachments/assets/31607e7a-8ef0-4d3b-82f1-6a2a6cf47ab7
+<img src="docs/add_new_wifi.gif" width="100%" alt="AP Mode Demo" />
 
 </td>
 <td width="50%" valign="top">
@@ -38,7 +38,7 @@ https://github.com/user-attachments/assets/31607e7a-8ef0-4d3b-82f1-6a2a6cf47ab7
 ### 📱 Saved Networks — Connect / Delete
 Browse saved SSIDs, select one, choose Connect or Delete with instant visual feedback.
 
-https://github.com/user-attachments/assets/1a71c45b-d304-48a4-9af9-afe576fe8103
+<img src="docs/specific_wifi_connect.gif" width="100%" alt="Saved Networks Demo" />
 
 </td>
 </tr>
@@ -48,7 +48,7 @@ https://github.com/user-attachments/assets/1a71c45b-d304-48a4-9af9-afe576fe8103
 ### 📶 Strongest Signal — Auto Connect
 Scans nearby networks, matches saved credentials, picks the strongest, and connects live.
 
-https://github.com/user-attachments/assets/3bd22726-7974-4346-9d10-75467cbe3a09
+<img src="docs/strongest.gif" width="100%" alt="Strongest Signal Demo" />
 
 </td>
 <td width="50%" valign="top">
@@ -56,29 +56,22 @@ https://github.com/user-attachments/assets/3bd22726-7974-4346-9d10-75467cbe3a09
 ### 💾 Last Saved — LIFO Connect
 Connects to the most recently saved network first.
 
-https://github.com/user-attachments/assets/56f849a7-f156-45aa-9648-b67a1cc52165
+<img src="docs/last_saved.gif" width="100%" alt="Last Saved Demo" />
 
 </td>
 </tr>
 <tr>
-<td width="50%" valign="top">
+<td colspan="2" align="center" valign="top">
 
 ### 🔄 Last Connected — Quick Reconnect
 Remembers last successful connection and reconnects in one tap.
 
-https://github.com/user-attachments/assets/7343c3c6-ac97-489b-b82e-0cb783147488
-
-</td>
-<td width="50%" valign="top">
-
-<br><br>
-*(Try out the library to see it in action!)*
+<br>
+<img src="docs/last_connected.gif" width="50%" alt="Last Connected Demo" />
 
 </td>
 </tr>
 </table>
-
-> **To update videos:** Open a [GitHub Issue](../../issues/new) → drag & drop an `.mp4` → GitHub generates a URL → paste it in the block above.
 
 ---
 
