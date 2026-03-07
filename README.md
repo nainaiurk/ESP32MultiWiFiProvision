@@ -116,7 +116,7 @@ Add to your `platformio.ini`:
 
 ```ini
 lib_deps =
-    https://github.com/nainaiurk/ESP32MultiWiFiProvision.git
+    nainaiurk/ESP32MultiWiFiProvision
 ```
 
 ### Arduino IDE
