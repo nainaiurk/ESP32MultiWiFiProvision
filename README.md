@@ -79,9 +79,9 @@ Remembers last successful connection and reconnects in one tap.
 
 In the demonstration videos, the system is implemented using an **ESP32-S3** with a **TFT display**. 
 
-The hardware is built on a custom PCB that was designed and manufactured through **[JLCPCB](https://jlcpcb.com)**. The develeopment board was assembled using components from the [JLCPCB parts library](https://jlcpcb.com/parts) to simplify sourcing and assembly.
+The hardware is built on a custom PCB that was designed and manufactured through **[JLCPCB](https://jlcpcb.com/?from=audrey3)**. The develeopment board was assembled using components from the [JLCPCB parts library](https://jlcpcb.com/parts?from=audrey2) to simplify sourcing and assembly.
 
-In addition, the ESP32-S3 data logger board used in the demo is also a custom design produced through [JLCPCB's PCB fabrication and PCBA services](https://jlcpcb.com/pcb-assembly). All major components used on the board are available directly from their parts library.
+In addition, the ESP32-S3 data logger board used in the demo is also a custom design produced through [JLCPCB's PCB fabrication and PCBA services](https://jlcpcb.com/pcb-assembly?from=audrey). All major components used on the board are available directly from their parts library.
 
 ---
 
@@ -288,7 +288,10 @@ wifiConfig.onConnected([](String ssid) {
 
 ## 📋 Changelog
 
-### v1.3.4 (Latest)
+### v1.3.5 (Latest)
+- **Documentation:** Updated hardware sourcing links to include referral parameters, maintaining the existing professional layout.
+
+### v1.3.4
 - **Fix:** Switched relative image paths to absolute GitHub Raw URLs so demo animations properly render on the PlatformIO registry landing page.
 
 ### v1.3.3
